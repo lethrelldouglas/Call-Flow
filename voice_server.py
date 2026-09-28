@@ -33,6 +33,8 @@ for _stream in (sys.stdout, sys.stderr):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(levelname)-7s  %(message)s")
+for _noisy in ("twilio", "httpx", "httpcore", "openai"):
+    logging.getLogger(_noisy).setLevel(logging.WARNING)  # keep the call log readable
 log = logging.getLogger("frontdesk.voice")
 
 app = FastAPI(title="ResolvOps Front Desk")
