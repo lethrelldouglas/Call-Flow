@@ -62,6 +62,11 @@ A text can sit unread. For emergency tickets the server phones the assigned cont
 
 Twilio fetches the call script from this server, so the server needs its public address: `PUBLIC_URL` in `.env`, or, when blank, the tunnel address from `tunnel.log`. `DEMO_PHONE` redirects the calls too.
 
+Two ways to place the call, chosen with `CALL_PROVIDER`:
+
+- `twilio`: Twilio rings the contractor and reads the ticket; they press 1. Needs voice calling enabled on the Twilio account (Trust Hub customer profile).
+- `retell`: Retell rings the contractor and Nemotron holds a short conversation: "this is an emergency dispatch for unit 412, can you take it?" A yes accepts the ticket, a no or voicemail moves the chain on. Set `RETELL_API_KEY`, `RETELL_FROM_NUMBER` (a number in your Retell account) and `RETELL_DISPATCH_AGENT_ID`: a second Retell agent of type Custom LLM whose URL ends in `/llm-websocket-dispatch` instead of `/llm-websocket`.
+
 ## Staff email: emergency alerts and the morning summary
 
 Emergencies also email the addresses listed under `- Emergency emails:` in the property profile, with the full ticket, the texts that went out, and what the tenant said. The mail goes from the same Gmail account the agent reads.

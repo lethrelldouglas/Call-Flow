@@ -127,15 +127,18 @@ def _call_current(ticket: tickets.Ticket) -> None:
         return
     base = settings.public_url()
     attempt_no = len(ticket.ack.get("attempts", [])) + 1
-    if not base:
+    if not base and settings.CALL_PROVIDER != "retell":
         ticket.ack["state"] = "no_public_url"
         ticket.log_action(f"cannot call {contact['name']}: no public address (is the tunnel running?)")
         tickets.save(ticket)
         return
-    result = notify.place_call(
-        contact["phone"], f"{base}/voice/dispatch/{ticket.id}", f"{base}/voice/dispatch/{ticket.id}/status",
-        label=contact["name"],
-    )
+    if settings.CALL_PROVIDER == "retell":
+        result = notify.place_call_retell(contact["phone"], ticket.id, label=contact["name"])
+    else:
+        result = notify.place_call(
+            contact["phone"], f"{base}/voice/dispatch/{ticket.id}", f"{base}/voice/dispatch/{ticket.id}/status",
+            label=contact["name"],
+        )
     ticket.ack.setdefault("attempts", []).append({
         "name": contact["name"], "phone": contact["phone"], "at": _now().isoformat(timespec="seconds"),
         "result": result["status"], "sid": result.get("sid", ""),
@@ -143,7 +146,8 @@ def _call_current(ticket: tickets.Ticket) -> None:
     ticket.ack["next_at"] = (_now() + timedelta(minutes=settings.ESCALATION_MINUTES)).isoformat(timespec="seconds")
     if result["status"] == "placed":
         ticket.ack["state"] = "calling"
-        ticket.log_action(f"calling {contact['name']} [{_outcome(result)}] attempt {attempt_no}: press 1 to accept")
+        how = "Nemotron will ask if they can take it" if settings.CALL_PROVIDER == "retell" else "press 1 to accept"
+        ticket.log_action(f"calling {contact['name']} [{_outcome(result)}] attempt {attempt_no}: {how}")
         tickets.save(ticket)
     elif result["status"] == "dry_run":
         ticket.ack["state"] = "dry_run"
@@ -224,6 +228,38 @@ def handle_status(ticket_id: str, call_status: str) -> None:
             contact = _current(ticket) or {"name": "the contact"}
             ticket.log_action(f"call to {contact['name']}: {call_status}, not accepted")
             _escalate(ticket)
+
+
+DISPATCH_CALL_SYSTEM = """You are {agent_name}, calling {contact} on behalf of {company} about an emergency. You are on a live phone call; everything you write is spoken aloud.
+
+The job:
+- Ticket {ticket_id}: {where}. {issue}
+- Tenant: {tenant}. Callback number: {callback}.
+- Access: {access}
+
+Your only goal is to find out whether {contact} can take this job now.
+- Open by saying who you are and that it is an emergency dispatch, give the unit and the problem in one sentence, and ask if they can take it.
+- Answer questions from the details above only. If asked something you do not know, say the tenant can tell them on the callback number.
+- If they accept: say you will tell the tenant they are on the way, say goodbye, and finish your reply with the exact text {accept_mark}
+- If they decline or cannot come soon: say you will call the next contact, say goodbye, and finish with the exact text {decline_mark}
+- If you reach voicemail or an answering machine: leave a two-sentence message with the unit, the problem and the callback number, then finish with {decline_mark}
+- At most 35 words per turn. Plain words, no lists."""
+
+ACCEPT_MARK = "[ACCEPT]"
+DECLINE_MARK = "[DECLINE]"
+
+
+def dispatch_call_prompt(ticket: tickets.Ticket, knowledge: str) -> str:
+    """System prompt for the Retell dispatcher conversation about one ticket."""
+    contact = _current(ticket) or {"name": "the contractor"}
+    where = f"unit {ticket.unit or 'unknown'}" + (f" at {ticket.building}" if ticket.building else "")
+    callback = ticket.phone or "no callback number"
+    access = ticket.details or ("permission to enter still to confirm" if "permission_to_enter" in ticket.missing else "see tenant")
+    return DISPATCH_CALL_SYSTEM.format(
+        agent_name=settings.AGENT_NAME, contact=contact["name"], company=company_name(knowledge),
+        ticket_id=ticket.id, where=where, issue=ticket.issue or ticket.summary, tenant=ticket.tenant_name or "unknown",
+        callback=callback, access=access, accept_mark=ACCEPT_MARK, decline_mark=DECLINE_MARK,
+    )
 
 
 def tick() -> int:

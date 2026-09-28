@@ -53,6 +53,54 @@ def place_call(to: str, twiml_url: str, status_url: str, label: str = "", ring_s
     return record
 
 
+def retell_configured() -> bool:
+    return bool(settings.RETELL_API_KEY and settings.RETELL_FROM_NUMBER and settings.RETELL_DISPATCH_AGENT_ID)
+
+
+def place_call_retell(to: str, ticket_id: str, label: str = "") -> dict:
+    """Ask Retell to phone a contact with the dispatcher agent; Nemotron then runs the conversation.
+
+    Honours DEMO_PHONE and SMS_DRY_RUN like place_call().
+    """
+    to_number = normalize_phone(to)
+    intended = to_number
+    if settings.DEMO_PHONE:
+        to_number = normalize_phone(settings.DEMO_PHONE)
+    record = {"to": to_number, "intended": intended, "status": "dry_run", "label": label}
+    if not to_number:
+        record.update(status="failed", error="no phone number")
+        return record
+    if settings.SMS_DRY_RUN or not retell_configured():
+        reason = "SMS_DRY_RUN=true" if settings.SMS_DRY_RUN else "Retell not configured"
+        log.info("[CALL %s] would ring %s via Retell (%s)", reason, to_number, label)
+        return record
+    try:
+        import httpx
+
+        resp = httpx.post(
+            "https://api.retellai.com/v2/create-phone-call",
+            headers={"Authorization": f"Bearer {settings.RETELL_API_KEY}"},
+            json={
+                "from_number": settings.RETELL_FROM_NUMBER,
+                "to_number": to_number,
+                "override_agent_id": settings.RETELL_DISPATCH_AGENT_ID,
+                "metadata": {"purpose": "dispatch", "ticket_id": ticket_id, "contact": label},
+            },
+            timeout=20,
+        )
+        if resp.status_code >= 300:
+            record.update(status="failed", error=f"Retell HTTP {resp.status_code}: {resp.text[:200]}")
+            log.error("[CALL failed] Retell %s (%s): %s", to_number, label, record["error"])
+            return record
+        data = resp.json()
+        record.update(status="placed", sid=data.get("call_id", ""))
+        log.info("[CALL placed] Retell ringing %s (%s) %s", to_number, label, record["sid"])
+    except Exception as exc:
+        record.update(status="failed", error=str(exc))
+        log.error("[CALL failed] Retell %s (%s): %s", to_number, label, exc)
+    return record
+
+
 def email_configured() -> bool:
     return bool(settings.SMTP["username"] and settings.SMTP["password"])
 
