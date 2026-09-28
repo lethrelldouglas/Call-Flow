@@ -93,6 +93,7 @@ class Ticket:
     actions: list = field(default_factory=list)  # what the agent did, in order
     transcript: str = ""
     source_ref: str = ""  # Retell call id, email Message-ID, SMS sid
+    ack: dict = field(default_factory=dict)  # phone acknowledgement chain (see dispatch_calls.py)
 
     @property
     def is_emergency(self) -> bool:
@@ -303,4 +304,9 @@ def dispatch(ticket: Ticket, knowledge: str) -> dict:
 
     ticket.status = "dispatched" if plan["notifications"] else "new"
     save(ticket)
+
+    if ticket.is_emergency and settings.CALL_CONTRACTORS:
+        import dispatch_calls  # imported here because it imports this module
+
+        dispatch_calls.start_acknowledgement(ticket, plan, knowledge)
     return plan

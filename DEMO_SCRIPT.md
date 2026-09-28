@@ -32,6 +32,14 @@ SAY: "Ticket's open. Plumbing, emergency, unit 412. It picked the plumber on fil
 DO: hold up the phone as the three texts arrive.
 SAY: "Those are the texts. This one was for the plumber, this one for the manager, this one for the tenant. In the demo they all come to me; in production they go to the real people in the profile."
 
+## Beat 4b: the phone rings (30 seconds)
+DO: a few seconds after the texts, your phone rings. That's "the plumber" being called. Answer on speaker.
+The audience hears: "This is Ariyah from Northgate Rentals with an emergency dispatch. Ticket ... unit 412 at
+Northgate Tower ... Press 1 to accept this job." Press 1.
+SAY: "A text can sit unread, so for emergencies it phones the contractor and reads the ticket. I just
+accepted, so the board flips to in progress and the tenant gets a text that the plumber is on the way.
+If nobody accepts within ten minutes it calls the next contact, then the manager."
+
 ## Beat 5: the email (15 seconds)
 DO: switch to the Gmail tab, open the newest message.
 SAY: "The manager also gets the full ticket by email: what the tenant said, what was sent, what's still missing."

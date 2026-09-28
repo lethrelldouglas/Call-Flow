@@ -92,6 +92,7 @@
           ${r.eta ? `<span>${esc(r.eta)}</span>` : ""}
           ${r.emergency_flags?.length ? `<span>flags: ${esc(r.emergency_flags.join(", ").replaceAll("_", " "))}</span>` : ""}
           ${r.missing?.length ? `<span>still missing: ${esc(r.missing.join(", ").replaceAll("_", " "))}</span>` : ""}
+          ${r.ack?.state ? `<span>phone ack: ${esc(r.ack.state.replaceAll("_", " "))}${r.ack.accepted_by ? " by " + esc(r.ack.accepted_by) : (r.ack.state === "calling" && r.ack.chain?.[r.ack.index] ? ", ringing " + esc(r.ack.chain[r.ack.index].name) : "")}</span>` : ""}
         </div>
         ${r.actions?.length ? `<ul class="actions">${r.actions.map(a => `<li>${esc(a)}</li>`).join("")}</ul>` : ""}
         <div class="buttons">

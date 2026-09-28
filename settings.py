@@ -7,6 +7,7 @@ can also be overridden from .env.
 from __future__ import annotations
 
 import os
+import re
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -74,6 +75,24 @@ SMS_DRY_RUN = env_bool("SMS_DRY_RUN", True)
 # Demo redirect: when set, every text goes to this one number, labelled with who it was for,
 # so a demo can never page a real contractor. Leave blank in production.
 DEMO_PHONE = env("DEMO_PHONE")
+
+# --- Contractor acknowledgement calls for emergencies ------------------------
+CALL_CONTRACTORS = env_bool("CALL_CONTRACTORS", True)  # phone the contractor and ask them to press 1
+ESCALATION_MINUTES = float(env("ESCALATION_MINUTES", "10"))  # no acceptance within this -> call the next contact
+PUBLIC_URL = env("PUBLIC_URL")  # this server's public https address; blank = read the tunnel's from tunnel.log
+
+
+def public_url() -> str:
+    """Where Twilio can reach this server for call instructions."""
+    if PUBLIC_URL:
+        return PUBLIC_URL.rstrip("/")
+    log_path = ROOT / "tunnel.log"
+    if log_path.exists():
+        found = re.findall(r"https://[a-z0-9-]+\.trycloudflare\.com", log_path.read_text(encoding="utf-8", errors="replace"))
+        if found:
+            return found[-1]
+    return ""
+
 
 # --- Staff emails (emergency alerts, morning summary) sent from the mailbox above ----
 EMAIL_NOTIFY_DRY_RUN = env_bool("EMAIL_NOTIFY_DRY_RUN", False)

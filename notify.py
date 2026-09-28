@@ -17,6 +17,42 @@ log = logging.getLogger("frontdesk.notify")
 EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 
 
+def place_call(to: str, twiml_url: str, status_url: str, label: str = "", ring_seconds: int = 25) -> dict:
+    """Phone a contact; Twilio fetches what to say from twiml_url. Never raises.
+
+    Honours DEMO_PHONE (the call goes to the demo phone instead) and SMS_DRY_RUN (only logged).
+    """
+    to_number = normalize_phone(to)
+    intended = to_number
+    if settings.DEMO_PHONE:
+        to_number = normalize_phone(settings.DEMO_PHONE)
+    record = {"to": to_number, "intended": intended, "status": "dry_run", "label": label}
+    if not to_number:
+        record.update(status="failed", error="no phone number")
+        return record
+    if settings.SMS_DRY_RUN or not configured():
+        reason = "SMS_DRY_RUN=true" if settings.SMS_DRY_RUN else "Twilio not configured"
+        log.info("[CALL %s] would ring %s (%s)", reason, to_number, label)
+        return record
+    try:
+        from twilio.rest import Client
+
+        client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+        call = client.calls.create(
+            to=to_number, from_=settings.TWILIO_FROM_NUMBER,
+            url=twiml_url, method="POST",
+            status_callback=status_url, status_callback_method="POST",
+            status_callback_event=["completed", "busy", "no-answer", "failed"],
+            timeout=ring_seconds,
+        )
+        record.update(status="placed", sid=call.sid)
+        log.info("[CALL placed] ringing %s (%s) %s", to_number, label, call.sid)
+    except Exception as exc:
+        record.update(status="failed", error=str(exc))
+        log.error("[CALL failed] %s (%s): %s", to_number, label, exc)
+    return record
+
+
 def email_configured() -> bool:
     return bool(settings.SMTP["username"] and settings.SMTP["password"])
 

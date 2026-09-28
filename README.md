@@ -56,6 +56,12 @@ Retell owns the number and the voice; this server is the brain.
 
 Texts stay in dry-run (logged on the ticket, not sent) until you add Twilio credentials to `.env` and set `SMS_DRY_RUN=false`. For a demo, also set `DEMO_PHONE` to your own cell: every text the agent would send goes there instead, prefixed with who it was for, so a rehearsal can never page a real contractor.
 
+## Emergencies get a phone call, not just a text
+
+A text can sit unread. For emergency tickets the server phones the assigned contractor through Twilio, reads the ticket out loud and asks them to press 1 to accept. Accepting flips the ticket to in progress and texts the tenant who is on the way. Declining, no answer, or no keypress within `ESCALATION_MINUTES` moves the chain on: contractor, then the on-call manager, then a final "nobody accepted" text to the manager. The chain state lives on the ticket and shows on the board.
+
+Twilio fetches the call script from this server, so the server needs its public address: `PUBLIC_URL` in `.env`, or, when blank, the tunnel address from `tunnel.log`. `DEMO_PHONE` redirects the calls too.
+
 ## Staff email: emergency alerts and the morning summary
 
 Emergencies also email the addresses listed under `- Emergency emails:` in the property profile, with the full ticket, the texts that went out, and what the tenant said. The mail goes from the same Gmail account the agent reads.

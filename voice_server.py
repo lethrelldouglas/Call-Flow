@@ -16,15 +16,18 @@ import asyncio
 import json
 import logging
 import sys
+from contextlib import asynccontextmanager
 from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import parse_qs
 
 import uvicorn
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 from openai import AsyncOpenAI
 
+import dispatch_calls
 import settings
 import tickets
 
@@ -37,7 +40,26 @@ for _noisy in ("twilio", "httpx", "httpcore", "openai"):
     logging.getLogger(_noisy).setLevel(logging.WARNING)  # keep the call log readable
 log = logging.getLogger("frontdesk.voice")
 
-app = FastAPI(title="ResolvOps Front Desk")
+async def escalation_loop() -> None:
+    """Every 15 s, move on any emergency call that has waited too long for a 'press 1'."""
+    while True:
+        try:
+            moved = await asyncio.to_thread(dispatch_calls.tick)
+            if moved:
+                log.info("escalation: %d ticket(s) moved to the next contact", moved)
+        except Exception as exc:
+            log.warning("escalation check failed: %s", exc)
+        await asyncio.sleep(15)
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    task = asyncio.create_task(escalation_loop())
+    yield
+    task.cancel()
+
+
+app = FastAPI(title="ResolvOps Front Desk", lifespan=lifespan)
 KNOWLEDGE = settings.load_business_knowledge(settings.PROPERTY_PROFILE)
 DASHBOARD = Path(__file__).resolve().parent / "web" / "dashboard.html"
 END_CALL_MARK = "[END_CALL]"
@@ -296,6 +318,38 @@ async def retell_webhook(request: Request):
         if ticket and summary:
             ticket.log_action(f"Retell call summary: {summary}")
             tickets.save(ticket)
+    return {"received": True}
+
+
+async def _form(request: Request) -> dict:
+    body = (await request.body()).decode("utf-8", errors="replace")
+    return {k: v[0] for k, v in parse_qs(body).items()}
+
+
+@app.api_route("/voice/dispatch/{ticket_id}", methods=["GET", "POST"])
+async def dispatch_twiml(ticket_id: str):
+    """Twilio fetches this when the contractor picks up: the ticket, read aloud, with a keypad prompt."""
+    ticket = tickets.get(ticket_id)
+    if not ticket or not ticket.ack or ticket.ack.get("state") != "calling":
+        return Response(content=dispatch_calls.twiml_closed(), media_type="application/xml")
+    return Response(content=dispatch_calls.twiml_for(ticket, KNOWLEDGE), media_type="application/xml")
+
+
+@app.post("/voice/dispatch/{ticket_id}/answer")
+async def dispatch_answer(ticket_id: str, request: Request):
+    form = await _form(request)
+    digits = form.get("Digits", "")
+    log.info("dispatch call for %s: contact pressed %r", ticket_id, digits)
+    xml = await asyncio.to_thread(dispatch_calls.handle_answer, ticket_id, digits)
+    return Response(content=xml, media_type="application/xml")
+
+
+@app.post("/voice/dispatch/{ticket_id}/status")
+async def dispatch_status(ticket_id: str, request: Request):
+    form = await _form(request)
+    status = form.get("CallStatus", "")
+    log.info("dispatch call for %s: status %s", ticket_id, status)
+    await asyncio.to_thread(dispatch_calls.handle_status, ticket_id, status)
     return {"received": True}
 
 

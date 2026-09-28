@@ -93,6 +93,38 @@ def test_dispatch_never_texts_a_number_outside_the_profile():
     assert "4165550150" in tickets.phone_numbers_in("call 416-555-0150 today")
 
 
+def test_call_chain_is_contractor_then_manager():
+    import dispatch_calls
+    import tickets
+    profile = (
+        "# Demo\n- Property manager on call: Jordan Pike, +1 416 555 0140, jp@example.com\n"
+        "- Plumbing: Rapid Flow Plumbing, +1 416 555 0150, 24/7\n"
+    )
+    t = tickets.Ticket(id="NG-T", created_at="2026-09-28T02:00:00+00:00", channel="phone", unit="412")
+    plan = {"assign_to": "Rapid Flow Plumbing", "notifications": [
+        {"to_name": "Rapid Flow Plumbing", "to_phone": "+14165550150", "message": "x"},
+        {"to_name": "Jordan Pike", "to_phone": "+14165550140", "message": "y"},
+    ]}
+    chain = dispatch_calls.build_chain(t, plan, profile)
+    assert [c["name"] for c in chain] == ["Rapid Flow Plumbing", "Jordan Pike"]
+    assert dispatch_calls.on_call_manager(profile) == {"name": "Jordan Pike", "phone": "+14165550140"}
+
+
+def test_spoken_script_reads_the_ticket_and_asks_for_1():
+    import dispatch_calls
+    import settings
+    import tickets
+    settings.PUBLIC_URL = "https://example.trycloudflare.com"
+    t = tickets.Ticket(id="NG-27E3B8", created_at="2026-09-28T02:00:00+00:00", channel="phone", tenant_name="Amara Osei",
+                       phone="+14165550199", unit="412", building="Northgate Tower", issue="Water pouring through the ceiling.")
+    t.ack = {"state": "calling", "chain": [{"name": "Rapid Flow Plumbing", "phone": "+14165550150"}], "index": 0}
+    xml = dispatch_calls.twiml_for(t, "# Northgate Rentals\n")
+    assert 'action="https://example.trycloudflare.com/voice/dispatch/NG-27E3B8/answer"' in xml
+    assert "N G 2 7 E 3 B 8" in xml and "4 1 6 5 5 5 0 1 9 9" in xml and "Press 1 to accept" in xml
+    assert dispatch_calls.spoken_digits("+1 (416) 555-0199") == "4 1 6 5 5 5 0 1 9 9"
+    settings.PUBLIC_URL = ""
+
+
 def test_chat_json_recovers_json_wrapped_in_prose():
     original = llm.chat
     llm.chat = lambda *a, **k: 'Sure, here it is:\n```json\n{"category": "spam", "needs_reply": false}\n```'
