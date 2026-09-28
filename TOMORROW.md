@@ -61,6 +61,15 @@ Within about ten seconds of hanging up: a ticket on the dashboard, and three tex
 python ops_demo.py --reset
 ```
 
+## 8. The morning-summary email (nice closer for the demo)
+
+```
+python morning_summary.py --hours 24
+```
+
+Lands in resolvops@gmail.com (DEMO_EMAIL) within seconds. Emergency tickets also email the
+manager automatically; with DEMO_EMAIL set those land in the same inbox.
+
 ## Settings to know (.env)
 
 - `DEMO_PHONE` = your cell. Every text goes there. Clear it only for a real deployment.

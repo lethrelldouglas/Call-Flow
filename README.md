@@ -56,6 +56,17 @@ Retell owns the number and the voice; this server is the brain.
 
 Texts stay in dry-run (logged on the ticket, not sent) until you add Twilio credentials to `.env` and set `SMS_DRY_RUN=false`. For a demo, also set `DEMO_PHONE` to your own cell: every text the agent would send goes there instead, prefixed with who it was for, so a rehearsal can never page a real contractor.
 
+## Staff email: emergency alerts and the morning summary
+
+Emergencies also email the addresses listed under `- Emergency emails:` in the property profile, with the full ticket, the texts that went out, and what the tenant said. The mail goes from the same Gmail account the agent reads.
+
+```bash
+python morning_summary.py            # overnight tickets, emailed to the profile's "Morning summary emails"
+python morning_summary.py --preview  # print it, send nothing
+```
+
+Nemotron writes the three-sentence overview at the top; the list below it comes straight from the ticket store. Schedule it for 7 am with Task Scheduler or cron. `DEMO_EMAIL` redirects all staff email to one inbox, the same way `DEMO_PHONE` does for texts.
+
 ## Files
 
 | File | What it does |

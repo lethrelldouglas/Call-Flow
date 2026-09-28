@@ -75,6 +75,11 @@ SMS_DRY_RUN = env_bool("SMS_DRY_RUN", True)
 # so a demo can never page a real contractor. Leave blank in production.
 DEMO_PHONE = env("DEMO_PHONE")
 
+# --- Staff emails (emergency alerts, morning summary) sent from the mailbox above ----
+EMAIL_NOTIFY_DRY_RUN = env_bool("EMAIL_NOTIFY_DRY_RUN", False)
+# Same idea as DEMO_PHONE: every staff email goes to this one address instead. Blank in production.
+DEMO_EMAIL = env("DEMO_EMAIL")
+
 # --- Mailbox (only agent.py needs this; demo.py never touches email) ---------
 IMAP = {
     "host": env("IMAP_HOST", "imap.gmail.com"),

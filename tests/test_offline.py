@@ -61,6 +61,38 @@ def test_sender_domain_detection():
     assert "gmail.com" in research.FREE_MAIL
 
 
+def test_notification_emails_come_from_the_profile():
+    import tickets
+    profile = (
+        "# Demo\n- Emergency emails: jordan@example.com\n"
+        "- Morning summary emails: office@example.com, jordan@example.com\n"
+    )
+    assert tickets.notification_emails(profile, "Emergency") == ["jordan@example.com"]
+    assert tickets.notification_emails(profile, "Morning summary") == ["office@example.com", "jordan@example.com"]
+    assert tickets.notification_emails("# nothing here", "Emergency") == []
+
+
+def test_emergency_email_carries_the_ticket_facts():
+    import tickets
+    t = tickets.Ticket(id="NG-TEST01", created_at="2026-09-28T02:00:00+00:00", channel="phone",
+                       tenant_name="Amara Osei", phone="+14165550199", unit="412", building="Northgate Tower",
+                       category="plumbing", urgency="emergency", emergency_flags=["flooding_or_active_leak"],
+                       issue="Water pouring through the bathroom ceiling.", missing=["permission_to_enter"])
+    plan = {"assign_to": "Rapid Flow Plumbing", "eta": "now",
+            "notifications": [{"to_name": "Rapid Flow Plumbing", "to_phone": "+14165550150", "message": "go now"}]}
+    subject, body = tickets.emergency_email(t, plan)
+    assert subject.startswith("EMERGENCY NG-TEST01: unit 412, Northgate Tower")
+    for needle in ("Amara Osei", "+14165550199", "flooding or active leak", "Rapid Flow Plumbing", "permission to enter", "go now"):
+        assert needle in body, needle
+
+
+def test_dispatch_never_texts_a_number_outside_the_profile():
+    import tickets
+    profile = "- Plumbing: Rapid Flow Plumbing, +1 416 555 0150, 24/7\n"
+    assert tickets.phone_numbers_in(profile) == {"4165550150"}
+    assert "4165550150" in tickets.phone_numbers_in("call 416-555-0150 today")
+
+
 def test_chat_json_recovers_json_wrapped_in_prose():
     original = llm.chat
     llm.chat = lambda *a, **k: 'Sure, here it is:\n```json\n{"category": "spam", "needs_reply": false}\n```'

@@ -202,6 +202,40 @@ def new_ticket(triage: dict, channel: str, *, transcript: str = "", source_ref: 
     return ticket
 
 
+def notification_emails(knowledge: str, kind: str) -> list[str]:
+    """Addresses listed in the profile under '- Emergency emails:' or '- Morning summary emails:'."""
+    match = re.search(rf"(?im)^\s*-\s*{re.escape(kind)}\s+emails?\s*:\s*(.+)$", knowledge)
+    if not match:
+        return []
+    return [a.strip() for a in re.split(r"[,\s]+", match.group(1)) if "@" in a]
+
+
+def emergency_email(ticket: Ticket, plan: dict) -> tuple[str, str]:
+    """Subject and body of the emergency alert for the manager, built straight from the ticket."""
+    where = f"unit {ticket.unit or '?'}" + (f", {ticket.building}" if ticket.building else "")
+    subject = f"EMERGENCY {ticket.id}: {where}: {ticket.issue or ticket.summary}"
+    lines = [
+        f"Emergency ticket {ticket.id} opened by {ticket.channel} at {ticket.created_at}.",
+        "",
+        f"Where:      {where}",
+        f"Tenant:     {ticket.tenant_name or 'unknown'}",
+        f"Callback:   {ticket.phone or 'no callback number'}" + (f" / {ticket.email}" if ticket.email else ""),
+        f"Issue:      {ticket.issue}",
+        f"Details:    {ticket.details or '-'}",
+        f"Flags:      {', '.join(f.replace('_', ' ') for f in ticket.emergency_flags) or '-'}",
+        f"Category:   {ticket.category.replace('_', ' ')}",
+        f"Assigned:   {plan.get('assign_to') or ticket.assigned_to or '-'} ({plan.get('eta') or ticket.eta or '-'})",
+        f"Still missing: {', '.join(m.replace('_', ' ') for m in ticket.missing) or 'nothing'}",
+        "",
+        "Texts sent:",
+    ]
+    lines += [f"  - {n['to_name']}: {n['message']}" for n in plan.get("notifications", [])] or ["  - none"]
+    if ticket.transcript:
+        lines += ["", "What the tenant said:", ticket.transcript[:2500]]
+    lines += ["", f"Live board: http://localhost:{settings.VOICE_PORT}/"]
+    return subject, "\n".join(lines)
+
+
 def phone_numbers_in(text: str) -> set[str]:
     """Every phone number in the text, as bare digits, so dispatch can be checked against the roster."""
     found = set()
@@ -257,6 +291,16 @@ def dispatch(ticket: Ticket, knowledge: str) -> dict:
             ticket.log_action(f"text to tenant [{outcome(result)}]: {plan['tenant_message']}")
         else:
             ticket.log_action(f"tenant message (no phone on file): {plan['tenant_message']}")
+
+    if ticket.is_emergency:
+        recipients = notification_emails(knowledge, "Emergency")
+        if recipients:
+            subject, body = emergency_email(ticket, plan)
+            result = notify.send_email(recipients, subject, body, label="emergency contacts: " + ", ".join(recipients))
+            ticket.log_action(f"email to {', '.join(recipients)} [{outcome(result)}]: {subject}")
+        else:
+            ticket.log_action("no emergency email addresses in the profile, email skipped")
+
     ticket.status = "dispatched" if plan["notifications"] else "new"
     save(ticket)
     return plan

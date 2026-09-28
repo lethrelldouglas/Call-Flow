@@ -139,6 +139,34 @@ def fetch_unseen(imap_cfg: dict, since=None, limit: int | None = None) -> list[d
     return emails
 
 
+def _smtp_session(smtp_cfg: dict) -> smtplib.SMTP:
+    host, port = smtp_cfg["host"], int(smtp_cfg["port"])
+    security = smtp_cfg.get("security", "starttls").lower()
+    if security == "tls":
+        server = smtplib.SMTP_SSL(host, port, timeout=30)
+    else:
+        server = smtplib.SMTP(host, port, timeout=30)
+        if security == "starttls":
+            server.starttls()
+    server.login(smtp_cfg["username"], smtp_cfg["password"])
+    return server
+
+
+def send_email(smtp_cfg: dict, to_addrs: list[str], subject: str, body: str, from_name: str = "") -> str:
+    """Send a plain-text email (used for staff notifications). Returns the Message-ID."""
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S%f")
+    message_id = f"<notify.{stamp}@{smtp_cfg['username'].split('@')[-1]}>"
+    msg = MIMEText(body, "plain", "utf-8")
+    msg["From"] = f"{from_name} <{smtp_cfg['username']}>" if from_name else smtp_cfg["username"]
+    msg["To"] = ", ".join(to_addrs)
+    msg["Subject"] = subject
+    msg["Message-ID"] = message_id
+    server = _smtp_session(smtp_cfg)
+    server.sendmail(smtp_cfg["username"], to_addrs, msg.as_string())
+    server.quit()
+    return message_id
+
+
 def send_reply(smtp_cfg: dict, original: dict, reply_body: str, reply_domain: str) -> str:
     """Send reply_body as an in-thread reply to the original message. Returns the new Message-ID."""
     to_addr = sender_address(original["from"])

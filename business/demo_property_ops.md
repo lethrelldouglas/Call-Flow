@@ -11,9 +11,14 @@ A fictional property manager used for demos and testing. Swap in your own buildi
 - Phone agent name: Aria
 
 ## People
-- Property manager on call: Jordan Pike, +1 416 555 0140 (text for emergencies only after hours)
+- Property manager on call: Jordan Pike, +1 416 555 0140, jordan.pike@northgate.example (text and email for emergencies only after hours)
 - Superintendent, Northgate Tower: Luis Ortega, +1 416 555 0141
 - Superintendent, Parkside Court and Maple Lofts: Priya Nair, +1 416 555 0142
+- Office: office@northgate.example (business hours)
+
+## Notifications
+- Emergency emails: jordan.pike@northgate.example
+- Morning summary emails: office@northgate.example, jordan.pike@northgate.example
 
 ## Contractors
 - Plumbing: Rapid Flow Plumbing, +1 416 555 0150, 24/7
