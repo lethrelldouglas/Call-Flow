@@ -54,18 +54,40 @@ if (-not $cfPath) {
     Read-Host "Press Enter to close"
     exit 1
 }
-if (Test-Path "$proj\tunnel.log") { Remove-Item "$proj\tunnel.log" -Force }
-Start-Process -FilePath "$proj\run_tunnel.bat" -WorkingDirectory $proj
+function TunnelUrlFromLog {
+    if (-not (Test-Path "$proj\tunnel.log")) { return $null }
+    $m = Select-String -Path "$proj\tunnel.log" -Pattern "https://[a-z0-9-]+\.trycloudflare\.com" | Select-Object -Last 1
+    if ($m) { return $m.Matches[0].Value }
+    return $null
+}
+function TunnelAnswers($u) {
+    $out = & curl.exe -s -m 8 "$u/health" 2>$null
+    return ("$out" -match '"ok"')
+}
 
+# Reuse a tunnel that is already running and answering; otherwise start a fresh one.
 $url = $null
-$tries = 0
-do {
-    Start-Sleep -Seconds 1; $tries++
-    if (Test-Path "$proj\tunnel.log") {
-        $m = Select-String -Path "$proj\tunnel.log" -Pattern "https://[a-z0-9-]+\.trycloudflare\.com" | Select-Object -First 1
-        if ($m) { $url = $m.Matches[0].Value }
+$running = Get-Process cloudflared -ErrorAction SilentlyContinue
+if ($running) {
+    $existing = TunnelUrlFromLog
+    if ($existing -and (TunnelAnswers $existing)) {
+        $url = $existing
+        Good "     A tunnel is already running, keeping it."
+    } else {
+        Say "     A stale tunnel is running; restarting it."
+        $running | Stop-Process -Force -ErrorAction SilentlyContinue
+        Start-Sleep -Seconds 2
     }
-} while (-not $url -and $tries -lt 45)
+}
+if (-not $url) {
+    Remove-Item "$proj\tunnel.log" -Force -ErrorAction SilentlyContinue
+    Start-Process -FilePath "$proj\run_tunnel.bat" -WorkingDirectory $proj
+    $tries = 0
+    do {
+        Start-Sleep -Seconds 1; $tries++
+        $url = TunnelUrlFromLog
+    } while (-not $url -and $tries -lt 45)
+}
 
 if (-not $url) {
     Bad "     No tunnel address after 45 seconds. Check the 'Tunnel' window; the venue wifi may block it. Try the phone hotspot."
