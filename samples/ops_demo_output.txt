@@ -1,0 +1,122 @@
+ticket store cleared
+Property profile : demo_property_ops.md
+Triage/dispatch  : nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B
+Reply writer     : nvidia/nemotron-3-super-120b-a12b
+Texts            : dry run (logged, not sent)
+
+========================================================================
+#1  [email] Amara Osei <amara.osei@gmail.com>
+    URGENT water coming through bathroom ceiling, unit 412
+========================================================================
+Ticket   : NG-6B87E4 | EMERGENCY | plumbing | unit 412 Northgate Tower
+Tenant   : Amara Osei 416-555-0199
+Issue    : Water is pouring through the bathroom ceiling in unit 412.
+Flags    : flooding_or_active_leak
+Assigned : Rapid Flow Plumbing  (Contractor dispatched now; help is on the way.)
+  -> text Rapid Flow Plumbing +14165550150: NG-6B87E4: Unit 412, Northgate Tower – emergency plumbing leak: Water is pouring through the bathroom ceiling. Tenant callback: 416-555-0199.
+  -> text Jordan Pike +14165550140: NG-6B87E4: Unit 412, Northgate Tower – emergency plumbing leak: Water is pouring through the bathroom ceiling. Tenant callback: 416-555-0199.
+  -> text tenant: Ticket NG-6B87E4 received for unit 412, Northgate Tower – emergency plumbing leak. Rapid Flow Plumbing has been dispatched and should arrive shortly. Please turn off the water shut‑off valve if safe, move belongings away from water, and stay clear of electrical outlets. We’ll keep you updated.
+
+Email reply:
+
+   Hello Amara,
+   
+   Thank you for letting us know about the water coming through the bathroom ceiling in unit 412 at Northgate Tower. This is an emergency, so we have dispatched Rapid Flow Plumbing right now and texted Jordan Pike, our on‑call manager. Help is on the way and should arrive shortly.
+   
+   Since you’re home and have a cat, please let the crew know if they need to enter while you’re present; otherwise they will wait for your permission. Keep the buckets in place and stay clear of any electrical outlets near the water.
+   
+   I’ll confirm the ticket (NG‑6B87E4) with the office and let you know if anything changes. Please call back if the situation worsens or if you need further assistance.
+   
+   Aria, Northgate Rentals after‑hours desk
+
+(13.3s)
+
+========================================================================
+#2  [phone] +14165550177
+    Call transcript
+========================================================================
+Ticket   : NG-576040 | EMERGENCY | hvac | unit 22 Parkside Court
+Tenant   : Devon Marsh +14165550177
+Issue    : Heat is not working in unit 22 at Parkside Court.
+Flags    : no_heat
+Assigned : Comfort Air Mechanical  (Now)
+  -> text Comfort Air Mechanical +14165550151: Ticket NG-576040: Unit 22, Parkside Court, Heat not working (emergency). Callback: +14165550177.
+  -> text Jordan Pike +14165550140: Ticket NG-576040: Unit 22, Parkside Court, Heat not working (emergency). Callback: +14165550177. Contractor dispatched.
+  -> text tenant: Ticket NG-576040 confirmed. Comfort Air Mechanical has been dispatched for the no‑heat issue in Unit 22, Parkside Court. Expect a call from the contractor shortly. No immediate safety steps needed.
+
+(12.9s)
+
+========================================================================
+#3  [sms] +14165550188
+    Text message
+========================================================================
+Ticket   : NG-471F85 | URGENT | doors_windows_locks | unit 8 Parkside Court
+Tenant   : Sofia Reyes +14165550188
+Issue    : Locked out of unit 8, keys inside, door closed behind me.
+Missing  : permission_to_enter
+Assigned : Priya Nair  (within 24 hours)
+  -> text Priya Nair +14165550142: Ticket NG-471F85: Sofia Reyes locked out of Unit 8 at Parkside Court, keys inside, door closed behind me. Urgency: urgent. Callback: +14165550188.
+  -> text tenant: Your ticket NG-471F85 has been received. Superintendent Priya Nair will contact you first thing tomorrow to arrange access. Please remain available and ensure the area is safe.
+
+(13.4s)
+
+========================================================================
+#4  [email] Ben Kowalski <b.kowalski@outlook.com>
+    Kitchen reno in 305, which contractor is coming tomorrow?
+========================================================================
+Ticket   : NG-190308 | ROUTINE | renovation_or_contractor | unit 305 Maple Lofts
+Tenant   : Ben Kowalski 
+Issue    : Tenant wants to know which contractor is coming tomorrow for kitchen countertop replacement in unit 305, Maple Lofts, and approximate time, and whether water will be shut off.
+Missing  : phone
+Assigned : Office  (within 2 business days)
+  -> text tenant: Your request has been logged as ticket NG-190308. The office will review it and contact you within two business days.
+
+Email reply:
+
+   Hi Ben,
+   
+   Thank you for reaching out. I’ve noted your request about the kitchen countertop replacement in unit 305, Maple Lofts. To let you know which contractor is scheduled, their expected arrival time, and whether the water will be shut off, I’ll need to check the work order with our office team.
+   
+   Could you also confirm if someone will be home to let the crew in, and whether there are any pets in the unit that we should be aware of? Once I have the details from the office, I’ll reply with the contractor name, time window, and water‑shut‑off information.
+   
+   I’ll get back to you within the next two business days.
+   
+   Aria, Northgate Rentals after‑hours desk
+
+(9.7s)
+
+========================================================================
+#5  [email] Grace Lin <grace.lin.to@gmail.com>
+    Noise from 1108 again
+========================================================================
+Ticket   : NG-C336DE | ROUTINE | noise_or_neighbour | unit 1008 Northgate Tower
+Tenant   : Grace Lin 
+Issue    : Loud music and stomping from unit 1108 disturbing unit 1008.
+Missing  : phone
+Assigned : Office  (within 2 business days)
+  -> text tenant: Ticket NG-C336DE logged for Grace Lin in unit 1008, Northgate Tower regarding loud music and stomping from unit 1108. The office will contact you within two business days. No immediate action needed.
+
+Email reply:
+
+   Hi Grace,
+   
+   Thank you for letting us know about the noise from unit 1108. I’ve created a routine ticket (NG‑C336DE) for the office to follow up. To keep the process moving, could you please reply with the best phone number to reach you and let me know if the loud music and stomping are still happening? If the office needs to enter the unit while you’re away, please tell me whether there are any pets and if we have permission to enter.
+   
+   The office will contact you within two business days to discuss the complaint with the resident of 1108.
+   
+   Aria, Northgate Rentals after‑hours desk
+
+(11.7s)
+
+========================================================================
+#6  [email] Elevator Capital Partners <offers@elevatorcapital.example>
+    Modernize your elevators with 0% financing
+========================================================================
+Not a request (Marketing email received, no maintenance request.). No ticket.
+
+(2.7s)
+
+------------------------------------------------------------------------
+5 ticket(s) in data/tickets.json. Start voice_server.py to see them on the dashboard.
+Token usage:
+nvidia/nemotron-3-super-120b-a12b: 14 call(s), 24739 tokens in / 10645 out

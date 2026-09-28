@@ -1,0 +1,19 @@
+# Secrets: never commit these
+.env
+config.py
+credentials.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Logs
+*.log
+
+# Ticket store (tenant details in real use; ops_demo.py regenerates demo data)
+data/
+
+# Local editor/session config
+.claude/

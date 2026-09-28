@@ -1,0 +1,44 @@
+[
+  {
+    "channel": "email",
+    "from": "Amara Osei <amara.osei@gmail.com>",
+    "subject": "URGENT water coming through bathroom ceiling, unit 412",
+    "date": "Mon, 28 Sep 2026 21:40:02 -0400",
+    "body": "Hi,\n\nWater is pouring through the bathroom ceiling in unit 412 at Northgate Tower. It started about 20 minutes ago and it's getting worse, the ceiling is bulging. I think it's coming from 512 upstairs. I've put buckets down.\n\nIs someone coming tonight? I'm home all evening. My cell is 416-555-0199. I have a cat.\n\nAmara"
+  },
+  {
+    "channel": "phone",
+    "from": "+14165550177",
+    "subject": "Call transcript",
+    "date": "Tue, 29 Sep 2026 06:12:45 -0400",
+    "body": "Agent: Thanks for calling Northgate Rentals after-hours line, this is Aria. What's going on?\nUser: Hi, yeah, our heat isn't working at all. It's freezing in here, we've got a baby.\nAgent: I'm sorry, let's get that sorted. Can I get your name and unit number?\nUser: Devon Marsh, unit 22 at Parkside Court.\nAgent: Thanks Devon. Is the thermostat on and set to heat, and is the furnace making any sound?\nUser: It's set to 22 and nothing's happening, the furnace is silent. It was working yesterday.\nAgent: Got it. Is this number ending in 0177 the best one to reach you on?\nUser: Yes.\nAgent: And if the technician needs to come in while you're out, do we have permission to enter? Any pets?\nUser: Yes you can come in, no pets. When will someone come?"
+  },
+  {
+    "channel": "sms",
+    "from": "+14165550188",
+    "subject": "Text message",
+    "date": "Mon, 28 Sep 2026 23:05:10 -0400",
+    "body": "locked out of unit 8 parkside court, door closed behind me, keys inside, its 11pm and cold. sofia reyes"
+  },
+  {
+    "channel": "email",
+    "from": "Ben Kowalski <b.kowalski@outlook.com>",
+    "subject": "Kitchen reno in 305, which contractor is coming tomorrow?",
+    "date": "Mon, 28 Sep 2026 16:10:00 -0400",
+    "body": "Hello,\n\nI was told there would be contractors in my unit (305, Maple Lofts) tomorrow for the kitchen countertop replacement. Can you tell me which company is coming and roughly what time? I'd like to be home for it. Also will the water be shut off?\n\nThanks,\nBen"
+  },
+  {
+    "channel": "email",
+    "from": "Grace Lin <grace.lin.to@gmail.com>",
+    "subject": "Noise from 1108 again",
+    "date": "Sun, 27 Sep 2026 23:30:00 -0400",
+    "body": "Hi, this is Grace in 1008 at Northgate Tower. The unit above me, 1108, has had loud music and stomping past 11pm for the third night in a row. I've knocked once. Can the office speak to them? Not an emergency, just tired.\n\nGrace"
+  },
+  {
+    "channel": "email",
+    "from": "Elevator Capital Partners <offers@elevatorcapital.example>",
+    "subject": "Modernize your elevators with 0% financing",
+    "date": "Mon, 28 Sep 2026 08:00:00 -0400",
+    "body": "Property owners: modernize your elevator fleet with zero down and 0% financing for 12 months. Reply to book a consultation. Unsubscribe here."
+  }
+]

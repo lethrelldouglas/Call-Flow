@@ -1,0 +1,133 @@
+Business profile : demo_tree_service.md
+Triage model     : nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B
+Writer model     : nvidia/nemotron-3-super-120b-a12b
+Tavily research  : on
+
+========================================================================
+#1  From: Dana Whitfield <dana.whitfield84@gmail.com>
+    Subject: Big maple leaning over my garage
+========================================================================
+Triage   : inquiry | needs_reply=True | lead=True | urgency=high
+Summary  : Dana needs an urgent assessment of a storm‑damaged maple threatening her garage and wants to know about permits.
+Intake   : name=Dana Whitfield, phone=705-555-0188, email=dana.whitfield84@gmail.com, location=Collingwood, service_requested=Tree removal / emergency assessment, timeframe=this week, notes=Big maple leaning over garage, cracked limb, possible safety hazard
+Questions: Do we need a permit from the town to take it down? | Can someone come look at it this week?
+
+Research notes:
+   ### Search: Town of Collingwood tree removal permit requirements
+   Why: The sender asked whether a permit is needed to remove a large tree in Collingwood.
+   Summary: To remove a tree in Collingwood, a permit from Planning Services is required, and an arborist report may be needed for certain projects. Permits are is
+   - Application for Tree Cutting | Town of Collingwood (https://www.collingwood.ca/town-services/documents/application-tree-cutting): ## Text size  Home  Home  # 
+   - Collingwood developer gets tree-cutting permit, except for wetland area - Barrie News (https://www.barrietoday.com/local-news/collingwood-developer-gets-tree-
+   - Tree Removal & Trimming in Collingwood | Tyler's Tree Services (https://tylerstreeservices.ca/tree-removal-collingwood): Pruning overhanging branches is allow
+   
+   ### Search: Emergency tree removal services Collingwood Ontario
+   Why: The sender requested an on-site assessment this week for a hazardous tree.
+   Summary: Emergency tree removal services in Collingwood, Ontario, are available from Tyler's Tree Services and Arbtech Tree Care Services. Both offer profession
+   - Tree Removal & Trimming in Collingwood | Tyler's Tree Services (https://tylerstreeservices.ca/tree-removal-collingwood): Skip to content   705-970-3746  Info@
+   - Arbtech Tree Care Services – Certified Arborists Collingwood Stayner Wasaga area (https://arbtechtreecare.com): Arbtech offers various services pertaining to 
+   - Application for Tree Cutting | Town of Collingwood (https://www.collingwood.ca/town-services/documents/application-tree-cutting): ## Text size  Home  Home  # 
+
+Draft reply:
+
+   Hi Dana,
+   
+   Thanks for reaching out. I can have a crew out to look at the maple this week—just let me know a good time or send a few photos and the address, and we’ll arrange a free on‑site estimate (usually within two business days).
+   
+   Regarding the permit, the Town of Collingwood’s Planning Services says a tree‑cutting permit is required for removing a larger tree like yours. When a permit is needed we take care of the paperwork as part of the job, so you won’t have to handle it yourself.
+   
+   Please reply with a couple of pictures of the tree and your garage, or give me a call at 705‑555‑0100, and we’ll set up the visit.
+   
+   Sam, Cedar & Sky Tree Care
+
+(13.3s)
+
+========================================================================
+#2  From: Priya Raman <priya@maplehillcottages.example>
+    Subject: Seasonal tree work for 12 cottages near Thornbury
+========================================================================
+Triage   : inquiry | needs_reply=True | lead=True | urgency=normal
+Summary  : Priya Raman from Maple Hill Cottages is requesting a quote for fall pruning and removal of two dead ash trees in the Thornbury area, ideally completed in October.
+Intake   : name=Priya Raman, email=priya@maplehillcottages.example, company=Maple Hill Cottages, location=Thornbury, Ontario, service_requested=Fall pruning across 12 cottages and removal of two dead ash trees, timeframe=October, notes=Manages 12 rental cottages near Thornbury; wants work before season picks up
+Questions: Do you service the Thornbury and Blue Mountains area? | Roughly what would this cost?
+
+Research notes:
+   ### Search: Maple Hill Cottages Thornbury Ontario
+   Why: The sender writes from a company domain (maplehillcottages.example) and asks about service area and cost for seasonal tree work in Thornbury and the Blue M
+   Summary: Maple Hill Cottages in Thornbury, Ontario, offer rental cottages starting from CA $287. Weekly rentals are available for specific months. Sandy Maple C
+   - Search Maple Hill Cottage Rentals from CA $287 (https://www.expedia.ca/Maple-Hill-Cottages.d3000438119-aaCottages.Travel-Guide-Accommodation): Book the best C
+   - Sunny Maple (https://haliburtoncottages.com/vrp/unit/Sunny_Maple-39-15): This cottages rents for weekly intervals (Friday to Friday) only during July and Augu
+   - Sandy Maple Cottage ID: 8615 (https://www.cottages-canada.ca/cottage-rental/8615): Our cottage is a spacious open concept on maple-wood flooring with over 3,3
+   
+   ### Search: Thornbury Ontario tree removal permit requirements
+   Why: The sender asked whether a permit is needed to remove trees in Thornbury; a search for the municipality's official rules is required.
+   Summary: To remove a tree in Thornbury, Ontario, a permit is required for trees over 30 cm diameter; smaller trees can be removed without a permit. Non-complian
+   - Tree Removal Permit In Toronto: 2026 Step-by-Step (https://torontotreeservices.ca/guides/tree-removal-permit-toronto): Protected private tree threshold: 30 cm
+   - Municipal Tree By-Law Update | Town of The Blue Mountains, ON (https://www.thebluemountains.ca/planning-building-construction/current-projects/strategic-proje
+   - Resident Knowledge and Support for Private Tree By-Laws in the Greater Toronto Area | Arboriculture & Urban Forestry (https://auf.isa-arbor.com/content/44/4/1
+
+Draft reply:
+
+   Hi Priya,
+   
+   Yes, we work in Thornbury and the Blue Mountains area, so we can handle the fall pruning for your twelve cottages and remove the two dead ash trees near the parking area.
+   
+   For pruning and seasonal maintenance we quote per property and usually offer a discount when we do multiple sites or repeat work. Tree removal typically runs between $800 and $3,500 each, depending on the tree’s size, how easy it is to reach and how close it is to buildings. Because a permit may be needed for larger trees in Thornbury, we’ll check that and prepare any paperwork as part of the job.
+   
+   The best way to get an accurate price is a free on‑site estimate, which we can usually arrange within two business days. Could you send a few photos of the trees and the cottage addresses, or let us know a good time to call?
+   
+   Thanks,
+   Sam
+   Cedar & Sky Tree Care
+
+(14.5s)
+
+========================================================================
+#3  From: Growth Team <marketing@seo-blast.example>
+    Subject: RE: Your website is losing customers!!!
+========================================================================
+Triage   : spam | needs_reply=False | lead=False | urgency=low
+Summary  : Marketing email offering guaranteed SEO services, not related to tree care.
+
+No reply needed.
+
+(1.4s)
+
+========================================================================
+#4  From: Marcus Bell <mbell@rogers.com>
+    Subject: Automatic reply: Estimate for stump grinding
+========================================================================
+Triage   : auto_reply | needs_reply=False | lead=False | urgency=low
+Summary  : Automatic out-of-office reply indicating limited email access until October 5.
+
+No reply needed.
+
+(1.4s)
+
+========================================================================
+#5  From: Helen Okafor <helen.okafor@outlook.com>
+    Subject: Invoice from last week's pruning
+========================================================================
+Triage   : existing_customer | needs_reply=True | lead=False | urgency=low
+Summary  : Helen Okafor is a returning customer who needs her invoice resent and wants to know about a discount for booking hedge trimming in spring.
+Intake   : name=Helen Okafor, email=helen.okafor@outlook.com, service_requested=hedge trimming, timeframe=spring, notes=requested resend of invoice from last week's pruning
+Questions: Could you resend the invoice from last week's pruning? | Is there a discount if we book the hedge trimming for the spring now?
+
+Draft reply:
+
+   Hi Helen,
+   
+   I’m glad the oak pruning turned out well. I’ll have our office resend the invoice from last week’s work to your Outlook address today.
+   
+   For hedge trimming, we do offer discounts for repeat customers and for jobs on multiple properties. If you’d like to book the spring trim now, just let me know the address and a few photos of the hedges, and we can put together a quote and let you know what discount applies.
+   
+   Give me a call at 705‑555‑0100 when you’re free, or reply with the details and we’ll get the estimate back to you within two business days.
+   
+   Thanks,
+   Sam, Cedar & Sky Tree Care
+
+(7.7s)
+
+------------------------------------------------------------------------
+Token usage:
+nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B: 8 call(s), 6710 tokens in / 1054 out
+nvidia/nemotron-3-super-120b-a12b: 3 call(s), 4493 tokens in / 2332 out

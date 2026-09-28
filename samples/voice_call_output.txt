@@ -1,0 +1,36 @@
+2026-09-28 15:29:45,609  INFO     call smoke-1790623785: connected
+2026-09-28 15:29:45,610  INFO     call smoke-1790623785: phone_call from +14165550199
+2026-09-28 15:29:58,686  INFO     [SMS SMS_DRY_RUN=true] to +14165550150: Emergency NG-8E7C38: Unit 412, Northgate Tower, water pouring through bathroom ceiling. Tenant callback +1 416 555 0199. Respond immediately.
+2026-09-28 15:29:58,686  INFO     [SMS SMS_DRY_RUN=true] to +14165550140: Emergency NG-8E7C38: Unit 412, Northgate Tower, water pouring through bathroom ceiling. Tenant callback +1 416 555 0199. Manager notified, contractor dispatched.
+2026-09-28 15:29:58,686  INFO     [SMS SMS_DRY_RUN=true] to +14165550199: Ticket NG-8E7C38 received. Emergency plumbing contractor dispatched now; manager notified. Please turn off the water shut‑off valve if safe, move belongings away from water, and stay clear of outlets. Stay safe.
+2026-09-28 15:29:58,691  INFO     call smoke-1790623785 -> ticket NG-8E7C38 (emergency, plumbing), assigned to Rapid Flow Plumbing, 2 text(s)
+Agent: Thanks for calling the after-hours line, this is Aria. What's going on?
+Caller: Hi, um, there's water coming through my bathroom ceiling in unit 412 at Northgate Tower. It's still pouring and getting worse.
+Agent (0.9s): I'm sorry to hear that. First, if water is coming through the ceiling, do not touch any outlets or light fixtures near the water. Stay safe.
+
+I need a few details. What is your name?
+Caller: It's Amara Osei, and yes, this number is the best one. You can come in if I'm out, I have a cat.
+Agent (0.8s): Got it. Your name is Amara Osei, unit 412 at Northgate Tower, and you have a cat. The callback number on screen is +1 416 555 0199—is that still the best number? 
+
+What is happening right now? You said water is coming through the ceiling. Is it still pouring?
+Caller: Yes, that's all right. Is someone coming tonight?
+Agent (0.9s): Yes, this is an emergency. Water pouring through a ceiling qualifies. Our emergency contractor will be dispatched now, and I'll text the on-call manager.
+
+Before I send that, let me confirm the details: Amara Osei, unit 412 at Northgate Tower, water pouring through the ceiling, still happening, you have a cat and you give permission for the crew to enter if you're not home.
+
+Is that all correct?
+Caller: No, that's everything. Thanks.
+Agent (0.7s): Perfect. Our emergency contractor is being dispatched right now. The on-call manager has been texted and will call you back shortly.
+
+Is there anything else I can help with tonight?
+(caller hung up)
+
+Ticket NG-8E7C38: emergency / plumbing / unit 412 Northgate Tower / Amara Osei +1 416 555 0199
+Issue: Water is pouring through the bathroom ceiling.
+Assigned to: Rapid Flow Plumbing (immediately)
+  19:29:53 ticket opened from phone: emergency, plumbing
+  19:29:58 text to Rapid Flow Plumbing [dry_run]: Emergency NG-8E7C38: Unit 412, Northgate Tower, water pouring through bathroom ceiling. Tenant callback +1 416 555 0199. Respond immediately.
+  19:29:58 text to Jordan Pike [dry_run]: Emergency NG-8E7C38: Unit 412, Northgate Tower, water pouring through bathroom ceiling. Tenant callback +1 416 555 0199. Manager notified, contractor dispatched.
+  19:29:58 text to tenant [dry_run]: Ticket NG-8E7C38 received. Emergency plumbing contractor dispatched now; manager notified. Please turn off the water shut‑off valve if safe, move belongings away from water, and stay clear of outlets. Stay safe.
+
+PASS

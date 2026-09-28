@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live operations</title>
+<style>
+  :root { --bg:#0f1418; --panel:#161d23; --line:#25303a; --text:#e6edf3; --muted:#8b98a5;
+          --emergency:#ff5d5d; --urgent:#ffb74d; --routine:#5cc8ff; --done:#6bd490; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { display:flex; flex-wrap:wrap; gap:8px 24px; align-items:baseline; padding:18px 24px 6px; }
+  header h1 { margin:0; font-size:20px; font-weight:600; }
+  header .sub { color:var(--muted); font-size:13px; }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; padding:12px 24px; }
+  .tile { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 14px; }
+  .tile .n { font-size:28px; font-weight:700; }
+  .tile .l { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+  .tile.emergency .n { color:var(--emergency); }
+  main { padding:6px 24px 32px; }
+  .ticket { background:var(--panel); border:1px solid var(--line); border-left:5px solid var(--routine); border-radius:10px; padding:12px 14px; margin:10px 0; }
+  .ticket.emergency { border-left-color:var(--emergency); }
+  .ticket.urgent { border-left-color:var(--urgent); }
+  .ticket.done { opacity:.55; }
+  .top { display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; }
+  .badge { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:2px 8px; border-radius:999px; color:#0f1418; }
+  .badge.emergency { background:var(--emergency); } .badge.urgent { background:var(--urgent); } .badge.routine { background:var(--routine); }
+  .badge.status { background:var(--line); color:var(--text); }
+  .id { color:var(--muted); font-size:13px; }
+  .unit { font-weight:600; }
+  .issue { margin:6px 0 4px; }
+  .meta { color:var(--muted); font-size:13px; display:flex; flex-wrap:wrap; gap:4px 16px; }
+  .actions { margin:8px 0 0; padding:0; list-style:none; font-size:13px; color:var(--muted); }
+  .actions li { padding:2px 0; border-top:1px dashed var(--line); }
+  .buttons { display:flex; gap:8px; margin-top:8px; }
+  button { background:transparent; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:5px 10px; font-size:13px; cursor:pointer; }
+  button:hover { border-color:var(--muted); }
+  .empty { color:var(--muted); padding:40px 0; text-align:center; }
+  @media (max-width:600px) { header, .tiles, main { padding-left:16px; padding-right:16px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="company">Live operations</h1>
+  <span class="sub" id="sub">loading…</span>
+</header>
+<section class="tiles">
+  <div class="tile emergency"><div class="n" id="t-emerg">0</div><div class="l">open emergencies</div></div>
+  <div class="tile"><div class="n" id="t-open">0</div><div class="l">open tickets</div></div>
+  <div class="tile"><div class="n" id="t-dispatched">0</div><div class="l">dispatched</div></div>
+  <div class="tile"><div class="n" id="t-done">0</div><div class="l">done</div></div>
+</section>
+<main id="list"><div class="empty">No tickets yet. Make a call or run ops_demo.py.</div></main>
+<script>
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const when = iso => { try { return new Date(iso).toLocaleString([], {month:"short", day:"numeric", hour:"numeric", minute:"2-digit"}); } catch { return iso; } };
+
+  async function loadMeta() {
+    try {
+      const m = await (await fetch("/api/meta")).json();
+      document.getElementById("company").textContent = m.company + " · Live operations";
+      document.getElementById("sub").textContent = `${m.agent} on the phones · ${m.voice_model.split("/").pop()} · texts: ${m.sms}`;
+    } catch { document.getElementById("sub").textContent = "server not reachable"; }
+  }
+
+  async function setStatus(id, status) {
+    await fetch(`/api/tickets/${id}/status`, {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({status})});
+    refresh();
+  }
+
+  function render(rows) {
+    const open = rows.filter(r => r.status !== "done");
+    document.getElementById("t-emerg").textContent = open.filter(r => r.urgency === "emergency").length;
+    document.getElementById("t-open").textContent = open.length;
+    document.getElementById("t-dispatched").textContent = rows.filter(r => r.status === "dispatched").length;
+    document.getElementById("t-done").textContent = rows.filter(r => r.status === "done").length;
+    const list = document.getElementById("list");
+    if (!rows.length) { list.innerHTML = '<div class="empty">No tickets yet. Make a call or run ops_demo.py.</div>'; return; }
+    list.innerHTML = rows.map(r => `
+      <article class="ticket ${esc(r.urgency)} ${esc(r.status)}">
+        <div class="top">
+          <span class="badge ${esc(r.urgency)}">${esc(r.urgency)}</span>
+          <span class="badge status">${esc(r.status.replace("_", " "))}</span>
+          <span class="unit">${esc(r.unit ? "Unit " + r.unit : "Unit ?")}${r.building ? " · " + esc(r.building) : ""}</span>
+          <span class="id">${esc(r.id)} · ${esc(r.channel)} · ${when(r.created_at)}</span>
+        </div>
+        <div class="issue">${esc(r.issue || r.summary)}</div>
+        <div class="meta">
+          <span>${esc(r.tenant_name || "name unknown")}${r.phone ? " · " + esc(r.phone) : (r.email ? " · " + esc(r.email) : "")}</span>
+          <span>${esc(r.category.replaceAll("_", " "))}</span>
+          ${r.assigned_to ? `<span>→ ${esc(r.assigned_to)}</span>` : ""}
+          ${r.eta ? `<span>${esc(r.eta)}</span>` : ""}
+          ${r.emergency_flags?.length ? `<span>flags: ${esc(r.emergency_flags.join(", ").replaceAll("_", " "))}</span>` : ""}
+          ${r.missing?.length ? `<span>still missing: ${esc(r.missing.join(", ").replaceAll("_", " "))}</span>` : ""}
+        </div>
+        ${r.actions?.length ? `<ul class="actions">${r.actions.map(a => `<li>${esc(a)}</li>`).join("")}</ul>` : ""}
+        <div class="buttons">
+          ${r.status !== "in_progress" && r.status !== "done" ? `<button onclick="setStatus('${esc(r.id)}','in_progress')">In progress</button>` : ""}
+          ${r.status !== "done" ? `<button onclick="setStatus('${esc(r.id)}','done')">Done</button>` : `<button onclick="setStatus('${esc(r.id)}','new')">Reopen</button>`}
+        </div>
+      </article>`).join("");
+  }
+
+  async function refresh() {
+    try { render(await (await fetch("/api/tickets")).json()); } catch {}
+  }
+  loadMeta(); refresh(); setInterval(refresh, 5000);
+</script>
+</body>
+</html>
