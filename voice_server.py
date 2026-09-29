@@ -535,7 +535,8 @@ async def list_tickets():
     rows = [asdict(t) for t in tickets.load_all()]
     rank = {"emergency": 0, "urgent": 1, "routine": 2}
     open_first = {"new": 0, "dispatched": 0, "in_progress": 0, "done": 1}
-    rows.sort(key=lambda r: (open_first.get(r["status"], 0), rank.get(r["urgency"], 3), r["created_at"]), reverse=False)
+    # open before done, emergencies first, and within each group the newest card on top
+    rows.sort(key=lambda r: r["created_at"], reverse=True)
     rows.sort(key=lambda r: (open_first.get(r["status"], 0), rank.get(r["urgency"], 3)))
     return rows
 
