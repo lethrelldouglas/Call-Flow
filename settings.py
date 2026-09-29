@@ -72,6 +72,9 @@ TWILIO_ACCOUNT_SID = env("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = env("TWILIO_AUTH_TOKEN")
 TWILIO_FROM_NUMBER = env("TWILIO_FROM_NUMBER")
 SMS_DRY_RUN = env_bool("SMS_DRY_RUN", True)
+# Outbound acknowledgement calls have their own switch, so texts can be silenced
+# (e.g. a Twilio daily cap) while the contractor call still fires. Defaults to the SMS setting.
+CALL_DRY_RUN = env_bool("CALL_DRY_RUN", SMS_DRY_RUN)
 # Demo redirect: when set, every text goes to this one number, labelled with who it was for,
 # so a demo can never page a real contractor. Leave blank in production.
 DEMO_PHONE = env("DEMO_PHONE")

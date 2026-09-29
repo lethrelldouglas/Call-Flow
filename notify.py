@@ -30,8 +30,8 @@ def place_call(to: str, twiml_url: str, status_url: str, label: str = "", ring_s
     if not to_number:
         record.update(status="failed", error="no phone number")
         return record
-    if settings.SMS_DRY_RUN or not configured():
-        reason = "SMS_DRY_RUN=true" if settings.SMS_DRY_RUN else "Twilio not configured"
+    if settings.CALL_DRY_RUN or not configured():
+        reason = "CALL_DRY_RUN=true" if settings.CALL_DRY_RUN else "Twilio not configured"
         log.info("[CALL %s] would ring %s (%s)", reason, to_number, label)
         return record
     try:
@@ -70,8 +70,8 @@ def place_call_retell(to: str, ticket_id: str, label: str = "") -> dict:
     if not to_number:
         record.update(status="failed", error="no phone number")
         return record
-    if settings.SMS_DRY_RUN or not retell_configured():
-        reason = "SMS_DRY_RUN=true" if settings.SMS_DRY_RUN else "Retell not configured"
+    if settings.CALL_DRY_RUN or not retell_configured():
+        reason = "CALL_DRY_RUN=true" if settings.CALL_DRY_RUN else "Retell not configured"
         log.info("[CALL %s] would ring %s via Retell (%s)", reason, to_number, label)
         return record
     try:
