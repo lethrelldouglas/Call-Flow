@@ -3,8 +3,8 @@
 ## One line
 An after-hours front desk for property managers: it answers the phone, opens the work order, wakes the right contractor, texts the tenant, and puts it all on a live board, running on NVIDIA Nemotron through Nebius Token Factory.
 
-## The problem (the Altair Rentals pitch)
-A property manager with 400 tenants gets calls, emails and voicemails all night: floods, no heat, lockouts, noise, "which contractor is coming tomorrow?" One overflowing voicemail box, staff who can't sleep, emergencies buried under routine requests, and no single view of what's open. That's the job I proposed to automate for Altair Rentals, and this is the open-model build of it.
+## The problem (a real proposal I wrote for a Toronto property manager)
+A property manager with 400 tenants gets calls, emails and voicemails all night: floods, no heat, lockouts, noise, "which contractor is coming tomorrow?" One overflowing voicemail box, staff who can't sleep, emergencies buried under routine requests, and no single view of what's open. That's the job I proposed to automate for a real property manager this summer, and this is the open-model build of it.
 
 ## What it does, end to end
 1. **Phone**: Retell owns the number and the voice. Every time the tenant speaks, Retell sends the transcript to my server; Nemotron 3.5 Lightning decides what to say and streams it back in under a second. It gives the safety instruction first for emergencies, collects name, unit, callback, the problem, whether it's still happening, and permission to enter, then reads it back.

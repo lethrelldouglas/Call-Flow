@@ -17,3 +17,6 @@ data/
 
 # Local editor/session config
 .claude/
+
+# Internal sales material stays local
+business/resolvops.md
