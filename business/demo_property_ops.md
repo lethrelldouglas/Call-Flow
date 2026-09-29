@@ -39,8 +39,11 @@ Safety instructions to give the caller first:
 - Elevator entrapment: stay calm, use the emergency button or phone in the car, help is being dispatched.
 - Electrical hazard: switch off the breaker if it is safe, do not touch the outlet or wire.
 
+## Lockouts: get the tenant back inside the same day, never "tomorrow"
+A tenant locked out of their own home cannot wait. After office hours, dispatch the 24/7 locksmith (Keystone Locksmith) right away and tell the tenant help is on the way tonight, with a rough ETA; also text the building superintendent so they know. Only a lockout during office hours, when the tenant has somewhere to wait, can go to the superintendent to let them in. Never tell a locked-out tenant they will be helped "first thing tomorrow." If the tenant mentions cold, a child, a medical need or being unsafe where they are waiting, treat it as an emergency.
+
 ## Urgent: superintendent first thing, within 24 hours
-No hot water, fridge or stove not working, the only toilet not flushing, a broken window, heat not working in mild weather, a leak that has been stopped, an appliance leaking, a daytime lockout.
+No hot water, fridge or stove not working, the only toilet not flushing, a broken window, heat not working in mild weather, a leak that has been stopped, an appliance leaking.
 
 ## Routine: ticket for the office, within 2 business days
 Dripping taps, slow drains, light fixtures, cosmetic repairs, noise complaints, pest sightings, questions about scheduled contractor work, general questions.
