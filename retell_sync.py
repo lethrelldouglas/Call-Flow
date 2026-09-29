@@ -74,13 +74,14 @@ def bind_number(headers: dict, agent_id: str) -> int:
         print(f"  number {number}: could not read it (HTTP {current.status_code})")
         return 0
     info = current.json()
-    bound_in = [a.get("agent_id") for a in info.get("inbound_agents") or []]
-    bound_out = [a.get("agent_id") for a in info.get("outbound_agents") or []]
-    if bound_in == [agent_id] and bound_out == [agent_id]:
-        print(f"  number {number}: already bound to this agent, both directions")
-        return 0
     agent = httpx.get(f"{RETELL}/get-agent/{agent_id}", headers=headers, timeout=20).json()
-    entry = [{"agent_id": agent_id, "agent_version": agent.get("version", 0), "weight": 1}]
+    version = agent.get("version", 0)
+    bound_in = [(a.get("agent_id"), a.get("agent_version")) for a in info.get("inbound_agents") or []]
+    bound_out = [(a.get("agent_id"), a.get("agent_version")) for a in info.get("outbound_agents") or []]
+    if bound_in == [(agent_id, version)] and bound_out == [(agent_id, version)]:
+        print(f"  number {number}: already bound to this agent (version {version}), both directions")
+        return 0
+    entry = [{"agent_id": agent_id, "agent_version": version, "weight": 1}]
     update = httpx.patch(f"{RETELL}/update-phone-number/{number}", headers=headers,
                          json={"inbound_agents": entry, "outbound_agents": entry}, timeout=20)
     if update.status_code >= 300:
