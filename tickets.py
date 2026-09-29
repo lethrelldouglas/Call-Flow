@@ -94,6 +94,7 @@ class Ticket:
     transcript: str = ""
     source_ref: str = ""  # Retell call id, email Message-ID, SMS sid
     ack: dict = field(default_factory=dict)  # phone acknowledgement chain (see dispatch_calls.py)
+    call_transcripts: list = field(default_factory=list)  # [{"with": name, "transcript": text}] for dispatcher calls
 
     @property
     def is_emergency(self) -> bool:

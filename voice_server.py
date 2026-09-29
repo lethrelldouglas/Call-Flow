@@ -454,11 +454,18 @@ async def retell_webhook(request: Request):
     log.info("webhook: %s for %s", event, call_id or "?")
     meta = call.get("metadata") or {}
     if meta.get("purpose") == "dispatch":
-        # an outbound dispatcher call that never connected (no answer, busy) moves the chain on
-        if event == "call_ended" and meta.get("ticket_id"):
+        ticket_id = str(meta.get("ticket_id", ""))
+        if event == "call_ended" and ticket_id:
+            # an outbound dispatcher call that never connected (no answer, busy) moves the chain on
             reason = str(call.get("disconnection_reason", ""))
             if reason.startswith("dial_") or reason in ("error", "no_answer", "busy"):
-                await asyncio.to_thread(dispatch_calls.handle_status, str(meta["ticket_id"]), "no-answer")
+                await asyncio.to_thread(dispatch_calls.handle_status, ticket_id, "no-answer")
+            # keep the words of the conversation on the ticket for the board
+            transcript = call.get("transcript") or ""
+            ticket = tickets.get(ticket_id)
+            if ticket and transcript:
+                ticket.call_transcripts.append({"with": str(meta.get("contact", "contact")), "transcript": transcript})
+                tickets.save(ticket)
         return {"received": True}
     if event in ("call_ended", "call_analyzed") and call_id and not tickets.find_by_source(call_id):
         raw = call.get("transcript_object") or []

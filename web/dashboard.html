@@ -32,6 +32,9 @@
   .meta { color:var(--muted); font-size:13px; display:flex; flex-wrap:wrap; gap:4px 16px; }
   .actions { margin:8px 0 0; padding:0; list-style:none; font-size:13px; color:var(--muted); }
   .actions li { padding:2px 0; border-top:1px dashed var(--line); }
+  .transcript { margin-top:8px; font-size:13px; }
+  .transcript summary { cursor:pointer; color:var(--muted); }
+  .transcript pre { white-space:pre-wrap; margin:6px 0 0; padding:8px 10px; background:var(--bg); border:1px solid var(--line); border-radius:8px; font:13px/1.45 system-ui, sans-serif; color:var(--text); }
   .buttons { display:flex; gap:8px; margin-top:8px; }
   button { background:transparent; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:5px 10px; font-size:13px; cursor:pointer; }
   button:hover { border-color:var(--muted); }
@@ -95,6 +98,8 @@
           ${r.ack?.state ? `<span>phone ack: ${esc(r.ack.state.replaceAll("_", " "))}${r.ack.accepted_by ? " by " + esc(r.ack.accepted_by) : (r.ack.state === "calling" && r.ack.chain?.[r.ack.index] ? ", ringing " + esc(r.ack.chain[r.ack.index].name) : "")}</span>` : ""}
         </div>
         ${r.actions?.length ? `<ul class="actions">${r.actions.map(a => `<li>${esc(a)}</li>`).join("")}</ul>` : ""}
+        ${r.transcript && r.channel === "phone" ? `<details class="transcript"><summary>Tenant call transcript</summary><pre>${esc(r.transcript)}</pre></details>` : ""}
+        ${(r.call_transcripts || []).map(c => `<details class="transcript"><summary>Call with ${esc(c.with)}</summary><pre>${esc(c.transcript)}</pre></details>`).join("")}
         <div class="buttons">
           ${r.status !== "in_progress" && r.status !== "done" ? `<button onclick="setStatus('${esc(r.id)}','in_progress')">In progress</button>` : ""}
           ${r.status !== "done" ? `<button onclick="setStatus('${esc(r.id)}','done')">Done</button>` : `<button onclick="setStatus('${esc(r.id)}','new')">Reopen</button>`}
