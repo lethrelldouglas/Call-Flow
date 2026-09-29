@@ -61,6 +61,32 @@ def main() -> int:
         return 1
     print(f"  websocket set : {wss}")
     print(f"  webhook set   : {webhook}")
+    return bind_number(headers, agent_id)
+
+
+def bind_number(headers: dict, agent_id: str) -> int:
+    """Make sure the from-number rings this agent for inbound calls and uses it for outbound ones."""
+    number = settings.RETELL_FROM_NUMBER
+    if not number:
+        return 0
+    current = httpx.get(f"{RETELL}/get-phone-number/{number}", headers=headers, timeout=20)
+    if current.status_code >= 300:
+        print(f"  number {number}: could not read it (HTTP {current.status_code})")
+        return 0
+    info = current.json()
+    bound_in = [a.get("agent_id") for a in info.get("inbound_agents") or []]
+    bound_out = [a.get("agent_id") for a in info.get("outbound_agents") or []]
+    if bound_in == [agent_id] and bound_out == [agent_id]:
+        print(f"  number {number}: already bound to this agent, both directions")
+        return 0
+    agent = httpx.get(f"{RETELL}/get-agent/{agent_id}", headers=headers, timeout=20).json()
+    entry = [{"agent_id": agent_id, "agent_version": agent.get("version", 0), "weight": 1}]
+    update = httpx.patch(f"{RETELL}/update-phone-number/{number}", headers=headers,
+                         json={"inbound_agents": entry, "outbound_agents": entry}, timeout=20)
+    if update.status_code >= 300:
+        print(f"  number {number}: binding failed (HTTP {update.status_code}) {update.text[:200]}")
+        return 1
+    print(f"  number {number}: now rings this agent and calls out with it")
     return 0
 
 
