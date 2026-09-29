@@ -52,23 +52,35 @@ ssh -R 80:localhost:8000 nokey@localhost.run
 python tests/tunnel_smoke.py https://<the address from step 3>
 ```
 
-## 5. Retell (once per new address)
+## 5. Retell (already set up; only needed if starting from scratch)
 
-1. Create a NEW agent (leave the live ResolvOps agent alone).
-2. LLM: choose **Custom LLM**.
-3. WebSocket URL: `wss://<the address from step 3>/llm-websocket`
-   (Retell appends the call id itself; nothing else to add).
-4. Voice: any; the greeting and every line come from the server.
-5. Optional: agent webhook URL `https://<the address>/webhook`.
-6. Test with Retell's test-call button first, then call the number.
+The agent (**Custom LLM agent**, id `agent_d313c90db7ad09f38148374c2d`) already exists and is bound
+to +16475561419 for both inbound and outbound. `start_demo.bat` re-points its Custom LLM URL and
+webhook at today's tunnel address automatically (`retell_sync.py`) — you don't need to touch Retell
+by hand. This is only for setting up a brand-new agent from zero:
 
-## 6. What to say on the test call
+1. Create an agent, type **Custom LLM**.
+2. WebSocket URL: `wss://<the address from step 3>/llm-websocket` (Retell appends the call id itself).
+3. Voice: any; every line the agent says comes from the server.
+4. Webhook URL: `https://<the address>/webhook`.
+5. Under the phone number, set both **Inbound** and **Outbound Call Agent** to this agent.
+6. Publish, then test.
 
-"There's water coming through my bathroom ceiling in unit 412 at Northgate Tower, it's still pouring."
-Then answer its questions: your name, "yes this number is fine", "you can come in, I have a cat", "no that's everything".
+## 6. What happens on a call
 
-Within about ten seconds of hanging up: a ticket on the dashboard, and three texts on your phone
-(`[for Rapid Flow Plumbing]`, `[for Jordan Pike]`, `[for tenant]`).
+**Inbound (tenant calls in).** Say: "There's water coming through my bathroom ceiling in unit 412
+at Northgate Tower, it's still pouring." Answer what it asks: your name, "yes this number is fine",
+"you can come in, I have a cat", "no that's everything".
+
+Within about ten seconds of hanging up: a ticket appears on the dashboard, three texts land on your
+phone (`[for Rapid Flow Plumbing]`, `[for Jordan Pike]`, `[for tenant]`), and the manager gets an
+email with the full ticket.
+
+**Outbound (the contractor call — the best part).** A few seconds later your phone rings again, from
+the same Retell number. That's Ariyah calling "the plumber": "This is Ariyah from Northgate Rentals
+with an emergency dispatch for Rapid Flow Plumbing... can you take this job now?" Say "yeah, I can
+take it, heading over now." The ticket flips to in progress and the tenant gets a follow-up text.
+Say no or don't answer and it escalates to the next contact instead — both are worth showing once.
 
 ## 7. Fill the board without a call
 
@@ -91,6 +103,8 @@ manager automatically; with DEMO_EMAIL set those land in the same inbox.
 - `SMS_DRY_RUN=false` right now: texts are real (to your phone). Set `true` to log instead.
 - `DRY_RUN=true`: email replies are drafted, never sent.
 - `AGENT_NAME=Ariyah`: what the agent calls itself on the phone.
+- `CALL_PROVIDER=retell`: the contractor dispatch call goes out through Retell (Nemotron talks),
+  not Twilio. Twilio voice is still blocked pending Trust Hub verification; not needed today.
 
 ## If something breaks
 
