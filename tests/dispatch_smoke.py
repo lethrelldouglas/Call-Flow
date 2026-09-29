@@ -40,7 +40,8 @@ def main() -> int:
 
     call_id = f"dispatch-smoke-{int(time.time())}"
     with TestClient(voice_server.app) as client:
-        with client.websocket_connect(f"/llm-websocket-dispatch/{call_id}") as ws:
+        # The main endpoint: the call's metadata is what marks it as a dispatcher call.
+        with client.websocket_connect(f"/llm-websocket/{call_id}") as ws:
             config = ws.receive_json()
             assert config["response_type"] == "config", config
             ws.send_json({"interaction_type": "call_details", "call": {

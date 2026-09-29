@@ -240,44 +240,78 @@ def finalize_call(state: CallState) -> tickets.Ticket | None:
         return None
 
 
-@app.websocket("/llm-websocket/{call_id}")
-async def llm_websocket(websocket: WebSocket, call_id: str):
+async def tenant_on_event(websocket: WebSocket, state: CallState, event: dict) -> None:
+    """A turn of a tenant call: stream the reply, then update what the call has established."""
+    kind = event.get("interaction_type")
+    if "transcript" in event:
+        state.transcript = event["transcript"] or []
+    if kind not in ("response_required", "reminder_required"):
+        return
+    state.latest_response_id = event["response_id"]
+    try:
+        async for reply in stream_reply(state, event):
+            await websocket.send_json(reply)
+            if reply.get("end_call"):
+                log.info("call %s: agent ended the call", state.call_id)
+    except Exception as exc:
+        log.error("call %s: model error: %s", state.call_id, exc)
+        await websocket.send_json({"response_type": "response", "response_id": event["response_id"],
+                                   "content": "Sorry, I missed that. Could you say it again?", "content_complete": True})
+    if kind == "response_required" and not state.extracting:
+        state.extracting = True
+        try:
+            await asyncio.to_thread(extract_known, state)
+        finally:
+            state.extracting = False
+
+
+async def run_call(websocket: WebSocket, call_id: str, forced_mode: str | None = None) -> None:
+    """Serve one Retell call. Tenant calls and outbound dispatcher calls share this loop; the
+    call's metadata (purpose: dispatch) decides which conversation runs."""
     await websocket.accept()
-    state = CALLS.setdefault(call_id, CallState(call_id))
     log.info("call %s: connected", call_id)
     await websocket.send_json({"response_type": "config", "config": {"auto_reconnect": True, "call_details": True}})
-    await websocket.send_json({"response_type": "response", "response_id": 0, "content": GREETING, "content_complete": True, "end_call": False})
+    tenant = CALLS.setdefault(call_id, CallState(call_id))
+    dispatch = DispatchState(call_id)
+    mode = forced_mode
+    greeted = False
+
+    async def tenant_greeting() -> None:
+        nonlocal greeted, mode
+        if greeted:
+            return
+        greeted, mode = True, "tenant"
+        await websocket.send_json({"response_type": "response", "response_id": 0, "content": GREETING, "content_complete": True, "end_call": False})
+
+    async def greet_if_details_never_arrive() -> None:
+        await asyncio.sleep(1.5)
+        await tenant_greeting()
+
+    fallback = asyncio.create_task(greet_if_details_never_arrive()) if forced_mode != "dispatch" else None
 
     async def handle(event: dict) -> None:
+        nonlocal greeted, mode
         kind = event.get("interaction_type")
         if kind == "ping_pong":
             await websocket.send_json({"response_type": "ping_pong", "timestamp": event.get("timestamp")})
             return
         if kind == "call_details":
+            if fallback:
+                fallback.cancel()
             call = event.get("call", {}) or {}
-            state.from_number = call.get("from_number", "") or ""
-            log.info("call %s: %s from %s", call_id, call.get("call_type", "call"), state.from_number or "unknown number")
+            meta = call.get("metadata") or {}
+            if not greeted and (forced_mode == "dispatch" or meta.get("purpose") == "dispatch"):
+                greeted, mode = True, "dispatch"
+                await dispatch_on_call_details(websocket, dispatch, call)
+            else:
+                tenant.from_number = call.get("from_number", "") or ""
+                log.info("call %s: %s from %s", call_id, call.get("call_type", "call"), tenant.from_number or "unknown number")
+                await tenant_greeting()
             return
-        if "transcript" in event:
-            state.transcript = event["transcript"] or []
-        if kind not in ("response_required", "reminder_required"):
-            return
-        state.latest_response_id = event["response_id"]
-        try:
-            async for reply in stream_reply(state, event):
-                await websocket.send_json(reply)
-                if reply.get("end_call"):
-                    log.info("call %s: agent ended the call", call_id)
-        except Exception as exc:
-            log.error("call %s: model error: %s", call_id, exc)
-            await websocket.send_json({"response_type": "response", "response_id": event["response_id"],
-                                       "content": "Sorry, I missed that. Could you say it again?", "content_complete": True})
-        if kind == "response_required" and not state.extracting:
-            state.extracting = True
-            try:
-                await asyncio.to_thread(extract_known, state)
-            finally:
-                state.extracting = False
+        if mode == "dispatch":
+            await dispatch_on_event(websocket, dispatch, event)
+        elif mode == "tenant":
+            await tenant_on_event(websocket, tenant, event)
 
     try:
         async for event in websocket.iter_json():
@@ -287,8 +321,20 @@ async def llm_websocket(websocket: WebSocket, call_id: str):
     except Exception as exc:
         log.error("call %s: websocket error: %s", call_id, exc)
     finally:
-        await asyncio.to_thread(finalize_call, state)
+        if fallback:
+            fallback.cancel()
+        if mode == "dispatch":
+            if dispatch.ticket_id and not dispatch.decision:
+                await asyncio.to_thread(dispatch_calls.handle_status, dispatch.ticket_id, "completed")
+        else:
+            await asyncio.to_thread(finalize_call, tenant)
         CALLS.pop(call_id, None)
+
+
+@app.websocket("/llm-websocket/{call_id}")
+async def llm_websocket(websocket: WebSocket, call_id: str):
+    """One agent for both directions: inbound tenant calls, and outbound dispatcher calls marked by metadata."""
+    await run_call(websocket, call_id)
 
 
 async def stream_dispatch_reply(state: "DispatchState", request: dict):
@@ -355,59 +401,44 @@ class DispatchState:
         self.decision: str | None = None
 
 
+async def dispatch_on_call_details(websocket: WebSocket, state: DispatchState, call: dict) -> None:
+    """Outbound dispatcher call answered: load the ticket from the metadata and open the conversation."""
+    meta = call.get("metadata") or {}
+    state.ticket_id = str(meta.get("ticket_id", ""))
+    ticket = tickets.get(state.ticket_id) if state.ticket_id else None
+    if not ticket or not ticket.ack:
+        log.warning("dispatch call %s: no open ticket in metadata, hanging up", state.call_id)
+        await websocket.send_json({"response_type": "response", "response_id": 0, "content": "Sorry, this dispatch is no longer active. Goodbye.", "content_complete": True, "end_call": True})
+        return
+    state.system = dispatch_calls.dispatch_call_prompt(ticket, KNOWLEDGE)
+    chain = ticket.ack.get("chain") or [{}]
+    contact = chain[min(ticket.ack.get("index", 0), len(chain) - 1)].get("name", "there")
+    where = f"unit {ticket.unit or 'unknown'}" + (f" at {ticket.building}" if ticket.building else "")
+    opening = (f"Hi, this is {settings.AGENT_NAME} from {dispatch_calls.company_name(KNOWLEDGE)} with an emergency dispatch for {contact}. "
+               f"{where}: {ticket.issue or ticket.summary} Can you take this job now?")
+    log.info("dispatch call %s: ticket %s, calling %s", state.call_id, ticket.id, contact)
+    await websocket.send_json({"response_type": "response", "response_id": 0, "content": opening, "content_complete": True, "end_call": False})
+
+
+async def dispatch_on_event(websocket: WebSocket, state: DispatchState, event: dict) -> None:
+    kind = event.get("interaction_type")
+    if "transcript" in event:
+        state.transcript = event["transcript"] or []
+    if kind not in ("response_required", "reminder_required") or not state.system:
+        return
+    state.latest_response_id = event["response_id"]
+    try:
+        async for reply in stream_dispatch_reply(state, event):
+            await websocket.send_json(reply)
+    except Exception as exc:
+        log.error("dispatch call %s: model error: %s", state.call_id, exc)
+        await websocket.send_json({"response_type": "response", "response_id": event["response_id"], "content": "Sorry, could you say that again?", "content_complete": True})
+
+
 @app.websocket("/llm-websocket-dispatch/{call_id}")
 async def dispatch_websocket(websocket: WebSocket, call_id: str):
-    """Retell connects here for outbound dispatcher calls: Nemotron asks the contractor to take the job."""
-    await websocket.accept()
-    state = DispatchState(call_id)
-    log.info("dispatch call %s: connected", call_id)
-    await websocket.send_json({"response_type": "config", "config": {"auto_reconnect": True, "call_details": True}})
-
-    async def handle(event: dict) -> None:
-        kind = event.get("interaction_type")
-        if kind == "ping_pong":
-            await websocket.send_json({"response_type": "ping_pong", "timestamp": event.get("timestamp")})
-            return
-        if kind == "call_details":
-            call = event.get("call", {}) or {}
-            meta = call.get("metadata") or {}
-            state.ticket_id = str(meta.get("ticket_id", ""))
-            ticket = tickets.get(state.ticket_id) if state.ticket_id else None
-            if not ticket:
-                log.warning("dispatch call %s: no ticket in metadata, hanging up", call_id)
-                await websocket.send_json({"response_type": "response", "response_id": 0, "content": "Sorry, this dispatch is no longer active. Goodbye.", "content_complete": True, "end_call": True})
-                return
-            state.system = dispatch_calls.dispatch_call_prompt(ticket, KNOWLEDGE)
-            contact = (ticket.ack.get("chain") or [{}])[min(ticket.ack.get("index", 0), max(len(ticket.ack.get("chain", [])) - 1, 0))].get("name", "there")
-            where = f"unit {ticket.unit or 'unknown'}" + (f" at {ticket.building}" if ticket.building else "")
-            opening = (f"Hi, this is {settings.AGENT_NAME} from {dispatch_calls.company_name(KNOWLEDGE)} with an emergency dispatch for {contact}. "
-                       f"{where}: {ticket.issue or ticket.summary} Can you take this job now?")
-            log.info("dispatch call %s: ticket %s, calling %s", call_id, ticket.id, contact)
-            await websocket.send_json({"response_type": "response", "response_id": 0, "content": opening, "content_complete": True, "end_call": False})
-            return
-        if "transcript" in event:
-            state.transcript = event["transcript"] or []
-        if kind not in ("response_required", "reminder_required") or not state.system:
-            return
-        state.latest_response_id = event["response_id"]
-        try:
-            async for reply in stream_dispatch_reply(state, event):
-                await websocket.send_json(reply)
-        except Exception as exc:
-            log.error("dispatch call %s: model error: %s", call_id, exc)
-            await websocket.send_json({"response_type": "response", "response_id": event["response_id"], "content": "Sorry, could you say that again?", "content_complete": True})
-
-    try:
-        async for event in websocket.iter_json():
-            asyncio.create_task(handle(event))
-    except WebSocketDisconnect:
-        log.info("dispatch call %s: disconnected", call_id)
-    except Exception as exc:
-        log.error("dispatch call %s: websocket error: %s", call_id, exc)
-    finally:
-        if state.ticket_id and not state.decision:
-            # answered but hung up without a decision: treat as not accepted
-            await asyncio.to_thread(dispatch_calls.handle_status, state.ticket_id, "completed")
+    """Dispatcher-only endpoint, for a separate outbound agent if you prefer one."""
+    await run_call(websocket, call_id, forced_mode="dispatch")
 
 
 @app.post("/webhook")

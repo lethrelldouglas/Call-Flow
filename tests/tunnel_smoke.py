@@ -36,10 +36,10 @@ async def run(base: str) -> int:
     async with websockets.connect(f"{wss}/llm-websocket/{call_id}", open_timeout=20) as ws:
         print(f"websocket connected in {time.time() - started:.1f}s")
         config = json.loads(await ws.recv())
-        greeting = json.loads(await ws.recv())
         assert config.get("response_type") == "config", config
+        await ws.send(json.dumps({"interaction_type": "call_details", "call": {"call_type": "phone_call", "direction": "inbound", "from_number": "+14165550199"}}))
+        greeting = json.loads(await ws.recv())
         print("Agent:", greeting.get("content"))
-        await ws.send(json.dumps({"interaction_type": "call_details", "call": {"call_type": "phone_call", "from_number": "+14165550199"}}))
         await ws.send(json.dumps({"interaction_type": "ping_pong", "timestamp": int(time.time() * 1000)}))
 
         transcript = [{"role": "agent", "content": greeting.get("content", "")}]

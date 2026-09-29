@@ -30,11 +30,12 @@ def main() -> int:
     with TestClient(voice_server.app) as client:
         with client.websocket_connect(f"/llm-websocket/{CALL_ID}") as ws:
             config = ws.receive_json()
-            greeting = ws.receive_json()
             assert config["response_type"] == "config", config
+            # Retell sends call_details right after the config; the greeting follows it.
+            ws.send_json({"interaction_type": "call_details", "call": {"call_type": "phone_call", "direction": "inbound", "from_number": "+14165550199", "to_number": "+14165550100"}})
+            greeting = ws.receive_json()
             assert greeting["response_id"] == 0 and greeting["content_complete"], greeting
             print(f"Agent: {greeting['content']}")
-            ws.send_json({"interaction_type": "call_details", "call": {"call_type": "phone_call", "from_number": "+14165550199", "to_number": "+14165550100"}})
             ws.send_json({"interaction_type": "ping_pong", "timestamp": int(time.time() * 1000)})
 
             transcript = [{"role": "agent", "content": greeting["content"]}]

@@ -65,7 +65,7 @@ Twilio fetches the call script from this server, so the server needs its public 
 Two ways to place the call, chosen with `CALL_PROVIDER`:
 
 - `twilio`: Twilio rings the contractor and reads the ticket; they press 1. Needs voice calling enabled on the Twilio account (Trust Hub customer profile).
-- `retell`: Retell rings the contractor and Nemotron holds a short conversation: "this is an emergency dispatch for unit 412, can you take it?" A yes accepts the ticket, a no or voicemail moves the chain on. Set `RETELL_API_KEY`, `RETELL_FROM_NUMBER` (a number in your Retell account) and `RETELL_DISPATCH_AGENT_ID`: a second Retell agent of type Custom LLM whose URL ends in `/llm-websocket-dispatch` instead of `/llm-websocket`.
+- `retell`: Retell rings the contractor and Nemotron holds a short conversation: "this is an emergency dispatch for unit 412, can you take it?" A yes accepts the ticket, a no or voicemail moves the chain on. Set `RETELL_API_KEY`, `RETELL_FROM_NUMBER` (a number in your Retell account, with that agent chosen as its outbound agent) and `RETELL_DISPATCH_AGENT_ID`. The same Custom LLM agent serves both directions: the server tells a dispatcher call from a tenant call by the call's metadata. A separate endpoint, `/llm-websocket-dispatch`, exists if you'd rather use a dedicated outbound agent.
 
 ## Staff email: emergency alerts and the morning summary
 
