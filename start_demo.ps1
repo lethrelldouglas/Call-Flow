@@ -79,14 +79,26 @@ if ($running) {
         Start-Sleep -Seconds 2
     }
 }
-if (-not $url) {
+function StartTunnel($protocol) {
     Remove-Item "$proj\tunnel.log" -Force -ErrorAction SilentlyContinue
-    Start-Process -FilePath "$proj\run_tunnel.bat" -WorkingDirectory $proj
+    $a = @("tunnel","--url","http://localhost:8000","--no-autoupdate","--logfile","$proj\tunnel.log")
+    if ($protocol) { $a += @("--protocol", $protocol) }
+    Start-Process -FilePath $cfPath -ArgumentList $a -WorkingDirectory $proj -WindowStyle Minimized
+}
+if (-not $url) {
+    # Try the fast default protocol (QUIC/UDP) first
+    StartTunnel $null
     $tries = 0
-    do {
-        Start-Sleep -Seconds 1; $tries++
-        $url = TunnelUrlFromLog
-    } while (-not $url -and $tries -lt 45)
+    do { Start-Sleep -Seconds 1; $tries++; $url = TunnelUrlFromLog } while (-not $url -and $tries -lt 20)
+    if (-not $url) {
+        # Guest/venue wifi commonly blocks QUIC's UDP; fall back to http2 over TCP
+        Say "     Fast protocol blocked (common on guest wifi); switching to compatibility mode..."
+        Get-Process cloudflared -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+        Start-Sleep -Seconds 2
+        StartTunnel "http2"
+        $tries = 0
+        do { Start-Sleep -Seconds 1; $tries++; $url = TunnelUrlFromLog } while (-not $url -and $tries -lt 35)
+    }
 }
 
 if (-not $url) {
