@@ -52,7 +52,7 @@ def main() -> int:
     webhook = base + "/webhook"
     if engine.get("llm_websocket_url") == wss and agent.get("webhook_url") == webhook:
         print("  Already up to date.")
-        return 0
+        return bind_number(headers, agent_id)
 
     body = {"response_engine": {"type": "custom-llm", "llm_websocket_url": wss}, "webhook_url": webhook}
     update = httpx.patch(f"{RETELL}/update-agent/{agent_id}", headers=headers, json=body, timeout=20)
