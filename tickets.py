@@ -194,7 +194,8 @@ def new_ticket(triage: dict, channel: str, *, transcript: str = "", source_ref: 
     # A phone number needs at least 10 digits; anything else ("fine", "ending in 0177") falls back to caller id.
     if len(re.sub(r"\D", "", ticket.phone)) < 10:
         ticket.phone = caller_phone or ""
-    if ticket.phone:
+    # Contact is satisfied by a phone OR an email (an email inquiry can be answered by email).
+    if ticket.phone or ticket.email:
         ticket.missing = [m for m in ticket.missing if m != "phone"]
     elif "phone" not in ticket.missing:
         ticket.missing.append("phone")
