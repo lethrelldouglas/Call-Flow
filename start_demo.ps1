@@ -98,10 +98,11 @@ if (-not $url) {
 $wss = $url.Replace("https://", "wss://") + "/llm-websocket"
 try { Set-Clipboard -Value $wss } catch {}
 
-# 4. Dashboard
+# 4. Dashboard, and point the Retell agent at today's address when the API key is in .env
 Say ""
-Say "4/4  Opening the dashboard..."
+Say "4/4  Opening the dashboard and updating Retell..."
 Start-Process "http://localhost:8000"
+& python retell_sync.py 2>&1 | ForEach-Object { Say "     $_" }
 
 Say ""
 Good "READY."

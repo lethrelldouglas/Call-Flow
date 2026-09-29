@@ -33,12 +33,13 @@ DO: hold up the phone as the three texts arrive.
 SAY: "Those are the texts. This one was for the plumber, this one for the manager, this one for the tenant. In the demo they all come to me; in production they go to the real people in the profile."
 
 ## Beat 4b: the phone rings (30 seconds)
-DO: a few seconds after the texts, your phone rings. That's "the plumber" being called. Answer on speaker.
-The audience hears: "This is Ariyah from Northgate Rentals with an emergency dispatch. Ticket ... unit 412 at
-Northgate Tower ... Press 1 to accept this job." Press 1.
-SAY: "A text can sit unread, so for emergencies it phones the contractor and reads the ticket. I just
-accepted, so the board flips to in progress and the tenant gets a text that the plumber is on the way.
-If nobody accepts within ten minutes it calls the next contact, then the manager."
+DO: a few seconds after the texts, your phone rings from the Retell number. That's "the plumber" being
+called. Answer on speaker. Ariyah: "Hi, this is Ariyah from Northgate Rentals with an emergency dispatch
+for Rapid Flow Plumbing. Unit 412 at Northgate Tower, water pouring through the bathroom ceiling. Can you
+take this job now?" Say: "Yeah, I can take it, heading over now." She confirms and hangs up.
+SAY: "A text can sit unread, so for emergencies it phones the contractor, and that call is Nemotron too.
+I said yes, so the board flips to in progress and the tenant gets a text that the plumber is on the way.
+Say no, or don't pick up, and it calls the next contact, then the manager."
 
 ## Beat 5: the email (15 seconds)
 DO: switch to the Gmail tab, open the newest message.

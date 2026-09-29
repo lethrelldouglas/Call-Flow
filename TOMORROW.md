@@ -6,10 +6,11 @@ Bring: laptop, charger, phone (Luma ticket + it receives every demo text).
 
 1. Connect to the wifi (or your phone's hotspot).
 2. Double-click **start_demo.bat** in this folder. It checks the keys, starts the server and the
-   tunnel in their own windows, opens the dashboard, and copies today's Retell address to the clipboard.
-3. In Retell, open the agent, click into **Custom LLM URL**, select all, paste. It autosaves.
-4. Click **Publish** and attach the phone number (or use Test Audio).
-5. Call it.
+   tunnel in their own windows, opens the dashboard, and updates the Retell agent to today's
+   address by itself (it prints "websocket set: wss://..."). The address is also on your clipboard
+   in case you ever need to paste it by hand.
+3. In Retell, click **Publish** and attach the phone number (or use Test Audio).
+4. Call it.
 
 Leave the "Voice server" and "Tunnel" windows open all day. If either closes, double-click
 start_demo.bat again and paste the new address into Retell.
